@@ -1,7 +1,9 @@
-﻿namespace FPServer.Interfaces
+﻿using FPServer.Enums;
+
+namespace FPServer.Interfaces
 {
     public interface IAppConfigs
     {
-        string this[string key] { get; set; }
+        string this[AppConfigEnum key] { get; set; }
     }
 }

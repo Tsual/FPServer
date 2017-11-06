@@ -1,4 +1,5 @@
-﻿using FPServer.Interfaces;
+﻿using FPServer.Enums;
+using FPServer.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace FPServer.ModelInstance
 {
+
     public class AppConfigs : IAppConfigs
     {
         private AppConfigs()
@@ -16,15 +18,15 @@ namespace FPServer.ModelInstance
         private static AppConfigs _Current = new AppConfigs();
         public static AppConfigs Current { get => _Current; set => _Current = value; }
 
-        public string this[string key]
+        public string this[AppConfigEnum key]
         {
             get
             {
-                return _QueryConfig(key);
+                return _QueryConfig(key.ToString());
             }
             set
             {
-                _SaveConfig(key, value);
+                _SaveConfig(key.ToString(), value);
             }
         }
 

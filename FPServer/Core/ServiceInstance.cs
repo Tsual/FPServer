@@ -6,5 +6,13 @@
         {
 
         }
+
+        public void UserLogin(string LID,string PWD_ori)
+        {
+
+        }
+
+
+
     }
 }

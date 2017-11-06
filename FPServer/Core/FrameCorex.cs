@@ -26,7 +26,10 @@ namespace FPServer.Core
         public static ServiceInstance getService()
         {
             var service = new ServiceInstance();
-            var serviceinfo = new ServiceInstanceInfo();
+            var serviceinfo = new ServiceInstanceInfo()
+            {
+                CreateTime = DateTime.Now
+            };
             _ServiceInstances.Add(service, serviceinfo);
             return service;
         }

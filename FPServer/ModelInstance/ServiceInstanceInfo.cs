@@ -7,6 +7,8 @@ namespace FPServer.ModelInstance
 {
     public class ServiceInstanceInfo
     {
+        private DateTime _CreateTime = new DateTime();
 
+        public DateTime CreateTime { get => _CreateTime; set => _CreateTime = value; }
     }
 }
