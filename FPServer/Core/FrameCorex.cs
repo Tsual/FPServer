@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using FPServer.Interfaces;
 using FPServer.ModelInstance;
 
+using FPServer.Exceptions;
+
 namespace FPServer.Core
 {
     public class FrameCorex
@@ -19,9 +21,17 @@ namespace FPServer.Core
         }
 
         #endregion
-
+        
         #region Service
         private static Dictionary<ServiceInstance, ServiceInstanceInfo> _ServiceInstances = new Dictionary<ServiceInstance, ServiceInstanceInfo>();
+
+        internal static ServiceInstanceInfo GetServiceInstanceInfo(ServiceInstance Instance)
+        {
+            return _ServiceInstances.ContainsKey(Instance)
+                ? _ServiceInstances[Instance]
+                : throw new ServiceNotfindException() { Instance = Instance };
+        }
+
 
         public static ServiceInstance getService()
         {
@@ -34,6 +44,16 @@ namespace FPServer.Core
             return service;
         }
 
+        #endregion
+
+        #region AppEncryptor
+        public static IEncryptor CurrnetAppEncryptor
+        {
+            get
+            {
+                return AppEncryptor.Current;
+            }
+        }
         #endregion
     }
 }

@@ -2,6 +2,10 @@
 
 namespace FPServer.Models
 {
+    /*
+            Models.AppDbContext db = new Models.AppDbContext();
+            db.Database.EnsureCreated();
+    */
     public class AppDbContext:DbContext
     {
         public DbSet<BasicApplicationModel> BasicApplicationModels { get; set; }

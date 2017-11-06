@@ -15,6 +15,7 @@ namespace FPServer.Models
         /// <summary>
         /// 明文
         /// </summary>
+        [Key]
         public string LID { get; set; }
 
         /// <summary>

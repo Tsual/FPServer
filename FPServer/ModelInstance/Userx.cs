@@ -2,11 +2,21 @@
 using System.IO;
 using System.Text;
 using FPServer.Models;
+using FPServer.Helper;
 
 namespace FPServer.ModelInstance
 {
-    public class Userx
+    public partial class Userx
     {
+        public static string HashOripwd(string LID, string PWD_ori)
+        {
+            string str1 = LID + PWD_ori;
+            string str2 = PWD_ori + LID;
+            var hashobj = new HashProvider();
+            string hstr1 = hashobj.Hash(str1);
+            string hstr2 = hashobj.Hash(str2);
+            return hstr1 + hstr2;
+        }
 
         public static implicit operator UserModel(Userx obj)
         {
@@ -46,17 +56,14 @@ namespace FPServer.ModelInstance
         private Info _Infos;
 
         public Info Infos { get => _Infos; set => _Infos = value; }
-
-
-        public class Info
-        {
-            [XmlIgnore]
-            private string _Remark = "";
-
-            public string Remark { get => _Remark; set => _Remark = value; }
-        }
         #endregion
 
+        public void SaveInfos()
+        {
+            AppDbContext db = new AppDbContext();
+            db.Entry((UserModel)this).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            db.SaveChanges();
+        }
 
     }
 

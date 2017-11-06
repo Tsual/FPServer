@@ -10,6 +10,15 @@ namespace FPServer.Core
 {
     public class AppEncryptor : IEncryptor
     {
+        private AppEncryptor()
+        {
+
+        }
+
+        private static AppEncryptor _Current = new AppEncryptor();
+        internal static AppEncryptor Current { get => _Current; set => _Current = value; }
+
+
         private static byte[] _appiv;
         private static byte[] _appkey;
 
