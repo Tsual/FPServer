@@ -8,7 +8,7 @@ using FPServer.Interfaces;
 
 namespace FPServer.Core
 {
-    public class AppEncryptor : IEncryptor
+    internal class AppEncryptor : IEncryptor
     {
         private AppEncryptor()
         {
@@ -16,7 +16,7 @@ namespace FPServer.Core
         }
 
         private static AppEncryptor _Current = new AppEncryptor();
-        internal static AppEncryptor Current { get => _Current; set => _Current = value; }
+        internal static AppEncryptor Current { get => _Current; }
 
 
         private static byte[] _appiv;

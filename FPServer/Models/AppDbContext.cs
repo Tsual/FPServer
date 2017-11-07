@@ -25,7 +25,7 @@ namespace FPServer.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("DataSource=localdb.db");
+            optionsBuilder.UseSqlite("DataSource=db0.db");
         }
        
 

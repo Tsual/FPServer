@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using FPServer.Models;
+using FPServer.Core;
 
 namespace FPServer.Controllers
 {
@@ -12,12 +13,29 @@ namespace FPServer.Controllers
     {
         public IActionResult Index()
         {
+            using (var server = FrameCorex.getService())
+            {
+                if(server.UserRegist_CheckLIDNotExsist("test"))
+                {
+                    server.UserRegist("test", "test");
+                }
+                server.UserLogin("test", "123213");
+                var user = FrameCorex.GetServiceInstanceInfo(server).User;
+                user.Infos.Remark = "test remark";
+                user.SaveInfos();
+                int a = 0;
+            }
             return View();
         }
 
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";
+
+            using (var server=FrameCorex.getService())
+            {
+                server.UserRegist("test", "test");
+            }
 
             return View();
         }

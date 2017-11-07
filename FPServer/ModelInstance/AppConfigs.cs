@@ -35,9 +35,9 @@ namespace FPServer.ModelInstance
             if (key == "" || key == null) return "";
             Models.AppDbContext db = new Models.AppDbContext();
             db.Database.EnsureCreated();
-            var items = from t in db.M_AppConfigModels
+            var items = (from t in db.M_AppConfigModels
                         where t.Key == key
-                        select t;
+                        select t).ToList();
             return items.Count() > 0 ? items.ElementAt(0).Value : "";
         }
 
@@ -46,9 +46,9 @@ namespace FPServer.ModelInstance
             if (key == "" || key == null) return;
             Models.AppDbContext db = new Models.AppDbContext();
             db.Database.EnsureCreated();
-            var items = from t in db.M_AppConfigModels
+            var items = (from t in db.M_AppConfigModels
                         where t.Key == key
-                        select t;
+                        select t).ToList();
             if (items.Count() > 0)
             {
                 items.ElementAt(0).Value = value;

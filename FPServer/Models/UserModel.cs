@@ -15,12 +15,13 @@ namespace FPServer.Models
         /// <summary>
         /// 明文
         /// </summary>
-        [Key]
+        [Required]
         public string LID { get; set; }
 
         /// <summary>
         /// SHA256+AES128 加密方式
         /// </summary>
+        [Required]
         public string PWD { get; set; }
 
         /// <summary>

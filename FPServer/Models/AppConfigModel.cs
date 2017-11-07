@@ -9,7 +9,7 @@ namespace FPServer.Models
         [Required, Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
 
-        [Key]
+        [Required]
         public string Key { get; set; }
 
         public string Value { get; set; }

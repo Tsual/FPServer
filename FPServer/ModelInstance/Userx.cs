@@ -33,13 +33,18 @@ namespace FPServer.ModelInstance
         public static implicit operator Userx(UserModel obj)
         {
             Userx res = new Userx();
-            using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(obj.EXT)))
+            if (obj.EXT != "" && obj.EXT != null)
             {
-                var serobj = new XmlSerializer(typeof(Info));
-                var target = serobj.Deserialize(ms) as Info;
-                res._Infos = target;
-                res._Origin = obj;
+                using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(obj.EXT)))
+                {
+                    var serobj = new XmlSerializer(typeof(Info));
+                    var target = serobj.Deserialize(ms) as Info;
+                    res._Infos = target ?? new Info();
+                }
             }
+            else
+                res._Infos = new Info();
+            res._Origin = obj;
             return res;
         }
 
