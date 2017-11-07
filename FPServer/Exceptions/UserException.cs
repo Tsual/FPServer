@@ -1,0 +1,25 @@
+﻿using FPServer.Enums;
+using FPServer.ModelInstance;
+using System;
+
+namespace FPServer.Exceptions
+{
+    public class UserException : Exception
+    {
+        private Userx _User;
+
+        public Userx User { get => _User; set => _User = value; }
+    }
+
+    public class UserPermissionException: UserException
+    {
+        private Permission _RequiredPermission;
+
+        public Permission RequiredPermission { get => _RequiredPermission; set => _RequiredPermission = value; }
+    }
+
+    public class UserLIDExsistException : UserException
+    {
+
+    }
+}

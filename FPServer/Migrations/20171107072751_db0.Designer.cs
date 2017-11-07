@@ -10,7 +10,7 @@ using System;
 namespace FPServer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20171107033245_db0")]
+    [Migration("20171107072751_db0")]
     partial class db0
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -92,6 +92,23 @@ namespace FPServer.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("FPServer.Models.UserRecordModel", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Key")
+                        .IsRequired();
+
+                    b.Property<int>("UID");
+
+                    b.Property<string>("Value");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("UserRecord");
                 });
 #pragma warning restore 612, 618
         }

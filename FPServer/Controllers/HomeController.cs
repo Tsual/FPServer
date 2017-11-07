@@ -19,7 +19,7 @@ namespace FPServer.Controllers
                 {
                     server.UserRegist("test", "test");
                 }
-                server.UserLogin("test", "123213");
+                server.UserLogin("test", "test");
                 var user = FrameCorex.GetServiceInstanceInfo(server).User;
                 user.Infos.Remark = "test remark";
                 user.SaveInfos();

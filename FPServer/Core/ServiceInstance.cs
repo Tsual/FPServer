@@ -5,6 +5,7 @@ using System.Linq;
 using FPServer.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
+using FPServer.Enums;
 
 namespace FPServer.Core
 {
@@ -45,9 +46,22 @@ namespace FPServer.Core
             FrameCorex.DropInstance(this);
         }
 
+        public bool UserChangePassword(string old_pwd, string new_pwd)
+        {
+            var serverinfo = FrameCorex.GetServiceInstanceInfo(this);
+            if (old_pwd == new_pwd) return false;
+            string PWD_ori_hash = Userx.HashOripwd(serverinfo.User.Origin.LID, old_pwd);
+            string PWD_ori_hash_aes = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
+            if (serverinfo.User.Origin.PWD != PWD_ori_hash_aes) return false;
+            PWD_ori_hash = Userx.HashOripwd(serverinfo.User.Origin.LID, new_pwd);
+            serverinfo.User.Origin.PWD = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
+            serverinfo.User.SaveInfos();
+            return true;
+        }
+
         public bool UserRegist(string LID, string PWD_ori)
         {
-            if(UserRegist_CheckLIDNotExsist(LID))
+            if(UserRegist_CheckLIDNotExsist(LID)&& PWD_ori!="")
             {
                 string PWD_ori_hash = Userx.HashOripwd(LID, PWD_ori);
                 string PWD_ori_hash_aes = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
@@ -57,11 +71,74 @@ namespace FPServer.Core
                     LID = LID,
                     PWD = PWD_ori_hash_aes
                 };
+                _Userx.Infos.UserPermission = Permission.User;
                 db.Entry((UserModel)_Userx).State = EntityState.Added;
                 db.SaveChanges();
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// 需要admin+权限
+        /// </summary>
+        /// <param name="LID"></param>
+        /// <param name="PWD"></param>
+        /// <param name="_Permission">不能为root</param>
+        public void CreateUser(string LID, string PWD, Permission _Permission)
+        {
+            if (_Permission == Permission.root) return;
+            if ((int)FrameCorex.GetServiceInstanceInfo(this).User.Infos.UserPermission > 1)
+                throw new UserPermissionException()
+                {
+                    RequiredPermission = Permission.Administor
+                };
+            if (UserRegist_CheckLIDNotExsist(LID))
+            {
+                string PWD_ori_hash = Userx.HashOripwd(LID, PWD);
+                string PWD_ori_hash_aes = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
+
+                Userx _Userx = new UserModel
+                {
+                    LID = LID,
+                    PWD = PWD_ori_hash_aes
+                };
+                _Userx.Infos.UserPermission = _Permission;
+                db.Entry((UserModel)_Userx).State = EntityState.Added;
+                db.SaveChanges();
+            }
+            else
+            {
+                throw new UserLIDExsistException();
+            }
+        }
+
+        /// <summary>
+        /// 需要root系统权限
+        /// </summary>
+        /// <param name="LID"></param>
+        /// <param name="PWD"></param>
+        public void ChangePassword(string LID,string PWD)
+        {
+            if ((int)FrameCorex.GetServiceInstanceInfo(this).User.Infos.UserPermission > 2)
+                throw new UserPermissionException()
+                {
+                    RequiredPermission = Permission.root
+                };
+            if (UserRegist_CheckLIDNotExsist(LID))
+            {
+                string PWD_ori_hash = Userx.HashOripwd(LID, PWD);
+                string PWD_ori_hash_aes = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
+
+                var user = (from t in db.M_UserModels
+                            where t.LID == LID
+                            select t).ToList()[0];
+
+                user.PWD = PWD_ori_hash_aes;
+
+                db.Entry(user).State = EntityState.Modified;
+                db.SaveChanges();
+            }
         }
 
         /// <summary>

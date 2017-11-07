@@ -65,6 +65,21 @@ namespace FPServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserRecord",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Key = table.Column<string>(type: "TEXT", nullable: false),
+                    UID = table.Column<int>(type: "INTEGER", nullable: false),
+                    Value = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserRecord", x => x.ID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -93,6 +108,9 @@ namespace FPServer.Migrations
 
             migrationBuilder.DropTable(
                 name: "TestModel");
+
+            migrationBuilder.DropTable(
+                name: "UserRecord");
 
             migrationBuilder.DropTable(
                 name: "Users");

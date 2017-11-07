@@ -5,6 +5,7 @@ namespace FPServer.Models
     /*
             Models.AppDbContext db = new Models.AppDbContext();
             db.Database.EnsureCreated();
+            UserRecordModel
     */
     public class AppDbContext:DbContext
     {
@@ -13,6 +14,7 @@ namespace FPServer.Models
         public DbSet<TestModel> M_TestModels { get; set; }
         public DbSet<UserModel> M_UserModels { get; set; }
         public DbSet<AppConfigModel> M_AppConfigModels { get; set; }
+        public DbSet<UserRecordModel> M_UserRecordModels { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -21,6 +23,7 @@ namespace FPServer.Models
             modelBuilder.Entity<TestModel>();
             modelBuilder.Entity<UserModel>();
             modelBuilder.Entity<AppConfigModel>();
+            modelBuilder.Entity<UserRecordModel>();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

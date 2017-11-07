@@ -8,6 +8,7 @@ namespace FPServer.ModelInstance
 {
     public partial class Userx
     {
+
         public static string HashOripwd(string LID, string PWD_ori)
         {
             string str1 = LID + PWD_ori;
@@ -68,6 +69,16 @@ namespace FPServer.ModelInstance
             AppDbContext db = new AppDbContext();
             db.Entry((UserModel)this).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
             db.SaveChanges();
+        }
+
+        public bool ChangePassword(string old_p,string new_p)
+        {
+
+
+
+
+
+            return true;
         }
 
     }

@@ -92,6 +92,23 @@ namespace FPServer.Migrations
 
                     b.ToTable("Users");
                 });
+
+            modelBuilder.Entity("FPServer.Models.UserRecordModel", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Key")
+                        .IsRequired();
+
+                    b.Property<int>("UID");
+
+                    b.Property<string>("Value");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("UserRecord");
+                });
 #pragma warning restore 612, 618
         }
     }
