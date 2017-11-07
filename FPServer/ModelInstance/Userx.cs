@@ -72,11 +72,14 @@ namespace FPServer.ModelInstance
             db.SaveChanges();
         }
 
+        private IUserRecordInstance _Records;
         public IUserRecordInstance Records
         {
             get
             {
-                return new UserRecordInstance(this);
+                if (_Records == null)
+                    _Records = new UserRecordInstance(this);
+                return _Records;
             }
         }
 
