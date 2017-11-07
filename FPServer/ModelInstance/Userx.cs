@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using FPServer.Models;
 using FPServer.Helper;
+using FPServer.Interfaces;
 
 namespace FPServer.ModelInstance
 {
@@ -71,19 +72,15 @@ namespace FPServer.ModelInstance
             db.SaveChanges();
         }
 
-        public bool ChangePassword(string old_p,string new_p)
+        public IUserRecordInstance Records
         {
-
-
-
-
-
-            return true;
+            get
+            {
+                return new UserRecordInstance(this);
+            }
         }
 
+
     }
-
-
-
 
 }

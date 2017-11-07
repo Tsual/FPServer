@@ -13,7 +13,7 @@ namespace FPServer.Models
         public string Key { get; set; }
 
         [Required]
-        public int UID { get; set; }
+        public string LID { get; set; }
 
         public string Value { get; set; }
     }

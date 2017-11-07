@@ -79,6 +79,17 @@ namespace FPServer.Core
             db.SaveChanges();
         }
 
+        internal static bool _CheckLIDPWD(string LID,string PWD)
+        {
+            AppDbContext db = new AppDbContext();
+            string PWD_ori_hash = Userx.HashOripwd("Guest", "Guest");
+            string PWD_ori_hash_aes = CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
+            var user = (from t in db.M_UserModels
+                        where t.LID == LID && t.PWD == PWD_ori_hash_aes
+                        select t).ToArray();
+            return user.Length == 1;
+        }
+
         #region Config
         public static IAppConfigs Config
         {
