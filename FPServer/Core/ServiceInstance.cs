@@ -6,10 +6,11 @@ using FPServer.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using FPServer.Enums;
+using FPServer.Interfaces;
 
 namespace FPServer.Core
 {
-    public class ServiceInstance:IDisposable
+    public class ServiceInstance : IDisposable
     {
         AppDbContext db = new AppDbContext();
         DateTime _CreateTime;
@@ -20,14 +21,19 @@ namespace FPServer.Core
             _CreateTime = DateTime.Now;
         }
 
+        public IUserRecordInstance _RecordInstance;
 
-
-        public void UserLogin(string LID,string PWD_ori)
+        public void UserLogin(string LID, string PWD_ori)
         {
             var userset = (from t in db.M_UserModels
-                          where t.LID==LID
-                          select t).ToList();
+                           where t.LID == LID
+                           select t).ToList();
             if (userset.Count() == 0) throw new UserNotfindException() { LID = LID };
+
+            Userx User = userset.ElementAt(0);
+
+            if (User.Infos.UserPermission == Permission.root)
+                throw new UserLoginRouteException() { LID = LID };
 
             string PWD_ori_hash = Userx.HashOripwd(LID, PWD_ori);
 
@@ -35,9 +41,9 @@ namespace FPServer.Core
 
             if (userset.ElementAt(0).PWD != PWD_ori_hash_aes) throw new UserPwdErrorException { LID = LID };
 
-            var info=FrameCorex.GetServiceInstanceInfo(this);
+            var info = FrameCorex.GetServiceInstanceInfo(this);
             info.IsLogin = true;
-            info.User = userset.ElementAt(0);
+            info.User = User;
 
         }
 
@@ -61,7 +67,7 @@ namespace FPServer.Core
 
         public bool UserRegist(string LID, string PWD_ori)
         {
-            if(UserRegist_CheckLIDNotExsist(LID)&& PWD_ori!="")
+            if (UserRegist_CheckLIDNotExsist(LID) && PWD_ori != "")
             {
                 string PWD_ori_hash = Userx.HashOripwd(LID, PWD_ori);
                 string PWD_ori_hash_aes = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
@@ -118,7 +124,7 @@ namespace FPServer.Core
         /// </summary>
         /// <param name="LID"></param>
         /// <param name="PWD"></param>
-        public void ChangePassword(string LID,string PWD)
+        public void ChangePassword(string LID, string PWD)
         {
             if ((int)FrameCorex.GetServiceInstanceInfo(this).User.Infos.UserPermission > 2)
                 throw new UserPermissionException()
@@ -149,8 +155,8 @@ namespace FPServer.Core
         public bool UserRegist_CheckLIDNotExsist(string LID)
         {
             var userset = (from t in db.M_UserModels
-                          where t.LID == LID
-                          select t).ToList();
+                           where t.LID == LID
+                           select t).ToList();
             return userset.Count() == 0;
         }
 

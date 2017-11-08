@@ -10,7 +10,7 @@ using System;
 namespace FPServer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20171107072751_db0")]
+    [Migration("20171108023123_db0")]
     partial class db0
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -102,7 +102,8 @@ namespace FPServer.Migrations
                     b.Property<string>("Key")
                         .IsRequired();
 
-                    b.Property<int>("UID");
+                    b.Property<string>("LID")
+                        .IsRequired();
 
                     b.Property<string>("Value");
 

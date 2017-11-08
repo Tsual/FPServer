@@ -112,6 +112,13 @@ namespace FPServer.Core
                 : throw new ServiceNotfindException() { Instance = Instance };
         }
 
+        internal static bool CheckUserLogin(Userx User)
+        {
+            var reslist = (from t in _ServiceInstances.Values
+                           where t.User == User
+                           select t).ToArray();
+            return reslist.Length > 0;
+        }
 
         public static ServiceInstance getService()
         {

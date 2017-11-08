@@ -4,6 +4,7 @@ using System.Text;
 using FPServer.Models;
 using FPServer.Helper;
 using FPServer.Interfaces;
+using System;
 
 namespace FPServer.ModelInstance
 {
@@ -49,8 +50,67 @@ namespace FPServer.ModelInstance
             res._Origin = obj;
             return res;
         }
+        #region 密钥类
+        private class UserEncryptor : IEncryptor
+        {
+            private byte[] _iv;
+            private byte[] _key;
+            private Userx User;
 
-        #region 密钥
+            private AESProvider AESobj
+            {
+                get
+                {
+                    if (_AESobj == null)
+                    {
+                        var ivhash = new HashProvider(HashProvider.HashAlgorithms.MD5);
+                        byte[] _iv = ivhash.Hashbytes(User.Origin.LID);
+
+                        string ranstr = AssetsController.getLocalSequenceString(User.Origin.ID);
+                        string kstr1 = ranstr + User.Origin.LID + User.Origin.PWD;
+
+                        var keyhash = new HashProvider();
+                        byte[] _key = new byte[32];
+                        byte[] btar = keyhash.Hashbytes(kstr1);
+                        Array.Copy(btar, 0, _key, 0, 32);
+                        _AESobj = new AESProvider(_iv, _key);
+
+                    }
+
+
+                    return _AESobj;
+                }
+            }
+            AESProvider _AESobj;
+
+            internal UserEncryptor(Userx User)
+            {
+                this.User = User;
+            }
+
+            public string Decrypt(string metaStr)
+            {
+                return AESobj.Decrypt(metaStr);
+            }
+
+            public string Encrypt(string metaStr)
+            {
+                return AESobj.Encrypt(metaStr); ;
+            }
+        }
+
+        UserEncryptor _Encryptor;
+        public IEncryptor Encryptor
+        {
+            get
+            {
+                if (_Encryptor == null)
+                    _Encryptor = new UserEncryptor(this);
+                return _Encryptor;
+            }
+        }
+        #endregion
+        #region 原始对象
         [XmlIgnore]
         private UserModel _Origin;
 

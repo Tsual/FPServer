@@ -3,23 +3,30 @@ using FPServer.Exceptions;
 using FPServer.Interfaces;
 using FPServer.Models;
 using System.Linq;
+using System;
 
 namespace FPServer.ModelInstance
 {
     public class UserRecordInstance : IUserRecordInstance
     {
-        private string _LID;
-        private AppDbContext db = new AppDbContext();
-        public UserRecordInstance(string LID, string PWD)
+        private string _LID
         {
-            if (!FrameCorex._CheckLIDPWD(LID, PWD))
-                throw new UserPwdErrorException() { LID = LID };
-            _LID = LID;
+            get => userx.Origin.LID;
+        }
+        private Userx userx;
+        private AppDbContext db = new AppDbContext();
+
+
+        internal UserRecordInstance(ServiceInstance Instance)
+        {
+            userx = FrameCorex.GetServiceInstanceInfo(Instance).User;
         }
 
-        public UserRecordInstance(Userx user)
+        internal UserRecordInstance(Userx User)
         {
-            _LID = user.Origin.LID;
+            if (!FrameCorex.CheckUserLogin(User))
+                throw new UserNotLoginException() { User = User };
+            userx = User;
         }
 
         private string _GetRecord(string key)
@@ -27,7 +34,7 @@ namespace FPServer.ModelInstance
             var lis = (from t in db.M_UserRecordModels
                        where t.LID == _LID && t.Key == key
                        select t).ToArray();
-            if (lis.Length == 1) return lis[0].Value;
+            if (lis.Length == 1) return userx.Encryptor.Decrypt(lis[0].Value);
             return null;
         }
 
@@ -39,7 +46,7 @@ namespace FPServer.ModelInstance
             if (lis.Length == 1)
             {
                 var ins = lis[0];
-                ins.Value = value;
+                ins.Value = userx.Encryptor.Encrypt(value);
                 db.Entry(ins).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
             }
             else
@@ -48,7 +55,7 @@ namespace FPServer.ModelInstance
                 {
                     LID = _LID,
                     Key = key,
-                    Value = value
+                    Value = userx.Encryptor.Encrypt(value)
                 };
                 db.Entry(ins).State = Microsoft.EntityFrameworkCore.EntityState.Added;
             }

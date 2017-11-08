@@ -101,7 +101,8 @@ namespace FPServer.Migrations
                     b.Property<string>("Key")
                         .IsRequired();
 
-                    b.Property<int>("UID");
+                    b.Property<string>("LID")
+                        .IsRequired();
 
                     b.Property<string>("Value");
 

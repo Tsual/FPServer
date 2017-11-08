@@ -22,4 +22,9 @@ namespace FPServer.Exceptions
 
     }
 
+    public class UserLoginRouteException : UserloginException
+    {
+
+    }
+
 }

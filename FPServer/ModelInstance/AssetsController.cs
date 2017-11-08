@@ -1,0 +1,46 @@
+﻿using FPServer.Core;
+using FPServer.Helper;
+using FPServer.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace FPServer.ModelInstance
+{
+    public class AssetsController
+    {
+        public static string getLocalSequenceString(int id)
+        {
+            using (AppDbContext db = new AppDbContext())
+            {
+                var targ = (from t in db.M_StorageModels
+                            where t.Key == "SA" + id
+                            select t).ToList();
+                if (targ.Count > 0)
+                    return targ[0].Value;
+                else
+                {
+                    string Str_Count = FrameCorex.Config[Enums.AppConfigEnum.RandomStringCount];
+                    if (Str_Count == "")
+                    {
+                        FrameCorex.Config[Enums.AppConfigEnum.RandomStringCount] = 0.ToString();
+                        Str_Count = 0.ToString();
+                    }
+                    int _Count = Convert.ToInt32(Str_Count);
+                    int _Increment = ((id - _Count) / 100 + 1) * 100;
+                    var rans = new RandomGenerator();
+                    for (int i = _Count; i < _Increment + _Count; i++)
+                        db.M_StorageModels.Add(new StorageModel()
+                        {
+                            Key = "SA" + i,
+                            Value = rans.getRandomString(20)
+                        });
+                    db.SaveChanges();
+                    FrameCorex.Config[Enums.AppConfigEnum.RandomStringCount] = (_Count + _Increment).ToString();
+                    return getLocalSequenceString(id);
+                }
+            }
+        }
+    }
+}

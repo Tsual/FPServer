@@ -21,8 +21,7 @@ namespace FPServer.Controllers
                 }
                 server.UserLogin("test", "test");
                 var user = FrameCorex.GetServiceInstanceInfo(server).User;
-                user.Infos.Remark = "test remark";
-                user.SaveInfos();
+                var rec=user.Records["test"] ;
                 int a = 0;
             }
             return View();
@@ -32,10 +31,6 @@ namespace FPServer.Controllers
         {
             ViewData["Message"] = "Your application description page.";
 
-            using (var server=FrameCorex.getService())
-            {
-                server.UserRegist("test", "test");
-            }
 
             return View();
         }

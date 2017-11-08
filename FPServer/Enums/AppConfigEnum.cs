@@ -12,7 +12,9 @@
 
         AppAesKey,
 
-        AppDBex
+        AppDBex,
+
+        RandomStringCount
 
 
     }
