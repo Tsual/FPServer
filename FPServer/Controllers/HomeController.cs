@@ -13,6 +13,7 @@ namespace FPServer.Controllers
     {
         public IActionResult Index()
         {
+            /*
             using (var server = FrameCorex.getService())
             {
                 if(server.UserRegist_CheckLIDNotExsist("test"))
@@ -28,6 +29,7 @@ namespace FPServer.Controllers
                     int a = 0;
                 }
             }
+            */
             return View();
         }
 

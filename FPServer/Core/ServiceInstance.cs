@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using FPServer.Enums;
 using FPServer.Interfaces;
+using System.Diagnostics;
 
 namespace FPServer.Core
 {
@@ -31,7 +32,7 @@ namespace FPServer.Core
             Userx User = userset.ElementAt(0);
 
             if (User.Infos.UserPermission == Permission.root)
-                throw new UserLoginRouteException() { LID = LID };
+                throw new UserLoginPermissionException() { LID = LID };
 
             string PWD_ori_hash = Userx.HashOripwd(LID, PWD_ori);
 
@@ -48,7 +49,7 @@ namespace FPServer.Core
 
         public void UserLogout()
         {
-            FrameCorex.DropInstance(this);
+            this.Dispose();
         }
 
         public bool UserChangePassword(string old_pwd, string new_pwd)
@@ -161,6 +162,7 @@ namespace FPServer.Core
 
         public void Dispose()
         {
+            Debug.WriteLine("Server Instance Dispose<<Current User : "+FrameCorex.GetServiceInstanceInfo(this).User.Origin.LID);
             FrameCorex.DropInstance(this);
         }
     }

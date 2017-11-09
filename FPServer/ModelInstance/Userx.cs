@@ -5,6 +5,7 @@ using FPServer.Models;
 using FPServer.Helper;
 using FPServer.Interfaces;
 using System;
+using System.Diagnostics;
 
 namespace FPServer.ModelInstance
 {
@@ -48,6 +49,7 @@ namespace FPServer.ModelInstance
             else
                 res._Infos = new Info();
             res._Origin = obj;
+            Debug.WriteLine("User Instance Active!<<LID : " + obj.LID);
             return res;
         }
         #region 密钥类
