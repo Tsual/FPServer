@@ -90,6 +90,8 @@ namespace FPServer.Core
             return user.Length == 1;
         }
 
+
+
         #region Config
         public static IAppConfigs Config
         {
@@ -112,13 +114,13 @@ namespace FPServer.Core
                 : throw new ServiceNotfindException() { Instance = Instance };
         }
 
-        internal static bool CheckUserLogin(Userx User)
-        {
-            var reslist = (from t in _ServiceInstances.Values
-                           where t.User == User
-                           select t).ToArray();
-            return reslist.Length > 0;
-        }
+        internal static bool CheckUserLogin(Userx User) => (from t in _ServiceInstances.Values
+                                                            where t.User == User
+                                                            select t).ToArray().Length > 0;
+
+        internal static string _FindEncryptToken(Userx User) => CheckUserLogin(User) ? (from t in _ServiceInstances.Values
+                                                                                        where t.User == User
+                                                                                        select t).ToList()[0].EncryptToken : null;
 
         public static ServiceInstance getService()
         {

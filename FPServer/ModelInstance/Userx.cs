@@ -53,8 +53,6 @@ namespace FPServer.ModelInstance
         #region 密钥类
         private class UserEncryptor : IEncryptor
         {
-            private byte[] _iv;
-            private byte[] _key;
             private Userx User;
 
             private AESProvider AESobj
@@ -67,7 +65,7 @@ namespace FPServer.ModelInstance
                         byte[] _iv = ivhash.Hashbytes(User.Origin.LID);
 
                         string ranstr = AssetsController.getLocalSequenceString(User.Origin.ID);
-                        string kstr1 = ranstr + User.Origin.LID + User.Origin.PWD;
+                        string kstr1 = ranstr + User.Origin.LID ;
 
                         var keyhash = new HashProvider();
                         byte[] _key = new byte[32];

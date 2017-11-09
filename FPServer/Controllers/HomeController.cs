@@ -19,10 +19,14 @@ namespace FPServer.Controllers
                 {
                     server.UserRegist("test", "test");
                 }
-                server.UserLogin("test", "test");
-                var user = FrameCorex.GetServiceInstanceInfo(server).User;
-                var rec=user.Records["test"] ;
-                int a = 0;
+                using (var server1 = FrameCorex.getService())
+                {
+                    server.UserLogin("test", "test");
+                    var user = FrameCorex.GetServiceInstanceInfo(server).User;
+                    user.Records["test"] = "test";
+                    var rec = user.Records["test"];
+                    int a = 0;
+                }
             }
             return View();
         }

@@ -21,8 +21,6 @@ namespace FPServer.Core
             _CreateTime = DateTime.Now;
         }
 
-        public IUserRecordInstance _RecordInstance;
-
         public void UserLogin(string LID, string PWD_ori)
         {
             var userset = (from t in db.M_UserModels
@@ -44,6 +42,7 @@ namespace FPServer.Core
             var info = FrameCorex.GetServiceInstanceInfo(this);
             info.IsLogin = true;
             info.User = User;
+            info.EncryptToken = FrameCorex.CurrnetAppEncryptor.Encrypt((new HashProvider()).Hash(LID + PWD_ori));
 
         }
 
