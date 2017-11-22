@@ -11,6 +11,7 @@ namespace FPServer.Core
 {
     public class FrameCorex
     {
+
         private FrameCorex()
         {
 
@@ -20,6 +21,9 @@ namespace FPServer.Core
         {
             Config[Enums.AppConfigEnum.AppDBex] = DateTime.Now.ToShortDateString();
             _CheckCreateDeaultUser();
+
+
+
         }
 
         private static void _CheckCreateDeaultUser()
@@ -79,10 +83,10 @@ namespace FPServer.Core
             db.SaveChanges();
         }
 
-        internal static bool _CheckLIDPWD(string LID,string PWD)
+        internal static bool _CheckLIDPWD(string LID, string PWD)
         {
             AppDbContext db = new AppDbContext();
-            string PWD_ori_hash = Userx.HashOripwd("Guest", "Guest");
+            string PWD_ori_hash = Userx.HashOripwd(LID, PWD);
             string PWD_ori_hash_aes = CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
             var user = (from t in db.M_UserModels
                         where t.LID == LID && t.PWD == PWD_ori_hash_aes
