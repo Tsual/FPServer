@@ -21,9 +21,6 @@ namespace FPServer.Core
         {
             Config[Enums.AppConfigEnum.AppDBex] = DateTime.Now.ToShortDateString();
             _CheckCreateDeaultUser();
-
-
-
         }
 
         private static void _CheckCreateDeaultUser()
@@ -112,11 +109,10 @@ namespace FPServer.Core
         private static List<ServiceInstance> _AvaServiceInstances = new List<ServiceInstance>();
 
         internal static ServiceInstanceInfo GetServiceInstanceInfo(ServiceInstance Instance)
-        {
-            return _ServiceInstances.ContainsKey(Instance)
+                => _ServiceInstances.ContainsKey(Instance)
                 ? _ServiceInstances[Instance]
                 : throw new ServiceNotfindException() { Instance = Instance };
-        }
+
 
         internal static bool CheckUserLogin(Userx User) => (from t in _ServiceInstances.Values
                                                             where t.User == User

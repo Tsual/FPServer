@@ -52,7 +52,7 @@ namespace FPServer.Controllers
                         Result = Enums.APIResult.Error
                     };
                 }
-                catch (Exception ex)
+                catch (FPException ex)
                 {
                     return new PostResponseModel()
                     {
@@ -62,10 +62,106 @@ namespace FPServer.Controllers
                 }
                 return new PostResponseModel()
                 {
-                    Message = "Success",
+                    Message = "Record add successs",
                     Result = Enums.APIResult.Success
                 };
 
+            }
+
+            public static PostResponseModel _Regist(PostInparamModel value)
+            {
+                try
+                {
+                    using (ServiceInstance server = FrameCorex.getService())
+                    {
+                        if (server.UserRegist_CheckLIDNotExsist(value.LID))
+                        {
+                            server.UserRegist(value.LID, value.PWD);
+                        }
+                        else
+                        {
+                            return new PostResponseModel()
+                            {
+                                Message = "User already exsist",
+                                Result = Enums.APIResult.Error
+                            };
+                        }
+                    }
+                }
+                catch (FPException ex)
+                {
+                    return new PostResponseModel()
+                    {
+                        Message = ex.Message,
+                        Result = Enums.APIResult.Error
+                    };
+                }
+                return new PostResponseModel()
+                {
+                    Message = "User regist success,welcome ",
+                    Result = Enums.APIResult.Success
+                };
+            }
+
+            public static PostResponseModel _GetRecord(PostInparamModel value)
+            {
+                try
+                {
+                    using (ServiceInstance server = FrameCorex.getService())
+                    {
+                        server.UserLogin(value.LID, value.PWD);
+                        var user = FrameCorex.GetServiceInstanceInfo(server).User;
+                        var tarres = new PostResponseModel()
+                        {
+                            Message = "Excute record query success",
+                            Result = Enums.APIResult.Error,
+                            ExtResult = { }
+                        };
+                        foreach (var t in value.Params.Values)
+                        {
+                            tarres.ExtResult.Add(t, user.Records[t]);
+                        }
+                        return tarres;
+
+                    }
+                }
+                catch (FPException ex)
+                {
+                    return new PostResponseModel()
+                    {
+                        Message = ex.Message,
+                        Result = Enums.APIResult.Error
+                    };
+                }
+            }
+
+            public static PostResponseModel _DeleteRecord(PostInparamModel value)
+            {
+                try
+                {
+                    using (ServiceInstance server = FrameCorex.getService())
+                    {
+                        server.UserLogin(value.LID, value.PWD);
+                        var user = FrameCorex.GetServiceInstanceInfo(server).User;
+                        foreach (var t in value.Params.Values)
+                        {
+                            user.Records.Delete(t);
+                        }
+                    }
+                }
+                catch (FPException ex)
+                {
+                    return new PostResponseModel()
+                    {
+                        Message = ex.Message,
+                        Result = Enums.APIResult.Error
+                    };
+                }
+                return new PostResponseModel()
+                {
+                    Message = "Delete record success",
+                    Result = Enums.APIResult.Success
+                };
             }
         }
     }

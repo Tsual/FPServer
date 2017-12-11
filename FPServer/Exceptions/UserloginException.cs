@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace FPServer.Exceptions
 {
-    public class UserloginException : Exception
+    public class UserloginException : FPException
     {
         public string LID { get; set; }
 

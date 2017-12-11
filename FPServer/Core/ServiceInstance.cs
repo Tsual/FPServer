@@ -162,7 +162,6 @@ namespace FPServer.Core
 
         public void Dispose()
         {
-            Debug.WriteLine("Server Instance Dispose<<Current User : "+FrameCorex.GetServiceInstanceInfo(this).User.Origin.LID);
             FrameCorex.DropInstance(this);
         }
     }

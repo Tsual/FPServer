@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FPServer.Exceptions
 {
-    public class ServiceException:Exception
+    public class ServiceException: FPException
     {
         private ServiceInstance _Instance = null;
 

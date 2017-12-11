@@ -4,7 +4,7 @@ using System;
 
 namespace FPServer.Exceptions
 {
-    public class UserException : Exception
+    public class UserException : FPException
     {
         private Userx _User;
 
@@ -27,4 +27,10 @@ namespace FPServer.Exceptions
     {
 
     }
+
+    public class UserRecordNotFindException : UserException
+    {
+        public override string Message => "Record not found";
+    }
+
 }

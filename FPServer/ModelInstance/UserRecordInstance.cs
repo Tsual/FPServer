@@ -62,6 +62,16 @@ namespace FPServer.ModelInstance
             db.SaveChanges();
         }
 
+        public void Delete(string key)
+        {
+            var lis = (from t in db.M_UserRecordModels
+                       where t.LID == _LID && t.Key == key
+                       select t).ToArray();
+            if (lis.Length == 0) throw new UserRecordNotFindException();
+            db.Entry(lis[0]).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+            db.SaveChanges();
+        }
+
         public string this[string key]
         {
             get

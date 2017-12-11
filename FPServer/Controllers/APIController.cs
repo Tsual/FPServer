@@ -49,6 +49,12 @@ namespace FPServer.Controllers
             {
                 case Enums.APIOperation.AddRecord:
                     return Utils._AddRecord(value);
+                case Enums.APIOperation.Regist:
+                    return Utils._Regist(value);
+                case Enums.APIOperation.GetRecord:
+                    return Utils._GetRecord(value);
+                case Enums.APIOperation.DeleteRecord:
+                    return Utils._DeleteRecord(value);
             }
             return new PostResponseModel()
             {

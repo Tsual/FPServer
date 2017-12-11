@@ -4,6 +4,12 @@
     {
         None,
 
-        AddRecord
+        AddRecord,
+
+        Regist,
+
+        GetRecord,
+
+        DeleteRecord
     }
 }
