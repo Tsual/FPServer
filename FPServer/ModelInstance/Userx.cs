@@ -99,7 +99,9 @@ namespace FPServer.ModelInstance
             }
         }
 
+        [XmlIgnore]
         UserEncryptor _Encryptor;
+        [XmlIgnore]
         public IEncryptor Encryptor
         {
             get
@@ -132,7 +134,10 @@ namespace FPServer.ModelInstance
             db.SaveChanges();
         }
 
+        [XmlIgnore]
         private IUserRecordInstance _Records;
+
+        [XmlIgnore]
         public IUserRecordInstance Records
         {
             get

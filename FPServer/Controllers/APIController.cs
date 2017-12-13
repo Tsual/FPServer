@@ -8,6 +8,7 @@ using FPServer.APIModel;
 using FPServer.Core;
 using FPServer.Exceptions;
 using FPServer.ModelInstance;
+using System.Threading;
 
 namespace FPServer.Controllers
 {
@@ -15,18 +16,25 @@ namespace FPServer.Controllers
     [Route("api/API")]
     public partial class APIController : Controller
     {
-        // GET: api/API
-        //[HttpGet]
-        //public PostInparamModel Get()
-        //{
-        //    return new PostInparamModel()
-        //    {
-        //        LID = "test",
-        //        Operation = Enums.APIOperation.test,
-        //        Params = new Dictionary<string, string>() { { "test", "test" } },
-        //        PWD = "test"
-        //    };
-        //}
+
+        [HttpGet]
+        public PostInparamModel Get()
+        {
+            string token = "";
+            using (var server = FrameCorex.getService())
+            {
+                token = server.Info.ToString();
+                server.Info.EncryptToken = "test";
+                server.Info.DisposeInfo = false;
+            }
+            Thread.Sleep(2000);
+            using (var server = FrameCorex.recoverService(token,(c)=> { }))
+            {
+                server.Info.EncryptToken = "check";
+            }
+
+            return null;
+        }
 
         // GET: api/API/5
         //[HttpGet("{id}", Name = "Get")]

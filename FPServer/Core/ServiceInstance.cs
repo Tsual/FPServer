@@ -17,6 +17,8 @@ namespace FPServer.Core
         DateTime _CreateTime;
         public DateTime CreateTime { get => _CreateTime; }
 
+        public ServiceInstanceInfo Info { get => FrameCorex.GetServiceInstanceInfo(this); }
+
         internal ServiceInstance()
         {
             _CreateTime = DateTime.Now;
@@ -84,6 +86,12 @@ namespace FPServer.Core
             }
             return false;
         }
+
+        public override string ToString()
+        {
+            return "ServiceIncetance " + Info;
+        }
+
 
         /// <summary>
         /// 需要admin+权限

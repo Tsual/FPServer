@@ -14,7 +14,9 @@
 
         AppDBex,
 
-        RandomStringCount
+        RandomStringCount,
+
+        ServiceDropTime
 
 
     }

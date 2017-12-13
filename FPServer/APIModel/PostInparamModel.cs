@@ -12,6 +12,7 @@ namespace FPServer.APIModel
     {
         public string LID { get; set; }
         public string PWD { get; set; }
+        public string Token { get; set; }
         public APIOperation Operation { get; set; }
         public Dictionary<string,string> Params { get; set; }
 

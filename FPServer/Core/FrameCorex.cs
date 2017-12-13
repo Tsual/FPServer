@@ -6,6 +6,8 @@ using FPServer.Interfaces;
 using FPServer.ModelInstance;
 using FPServer.Models;
 using FPServer.Exceptions;
+using System.Threading;
+using System.Diagnostics;
 
 namespace FPServer.Core
 {
@@ -107,6 +109,20 @@ namespace FPServer.Core
         #region Service
         private static Dictionary<ServiceInstance, ServiceInstanceInfo> _ServiceInstances = new Dictionary<ServiceInstance, ServiceInstanceInfo>();
         private static List<ServiceInstance> _AvaServiceInstances = new List<ServiceInstance>();
+        private static Dictionary<string, KeyValuePair<DateTime, ServiceInstanceInfo>> _IntServiceInstancesInfos = new Dictionary<string, KeyValuePair<DateTime, ServiceInstanceInfo>>();
+
+        private static Timer InfoCheckTimer = new Timer((o) =>
+        {
+            foreach (var t in (from t in _IntServiceInstancesInfos.Values
+                               where Math.Abs((t.Key - DateTime.Now).Minutes) <= 1
+                               select t).ToList())
+            {
+                _IntServiceInstancesInfos.Remove(t.Value.HashToken);
+                Debug.WriteLine("Remove Timer Excute " + t);
+            }
+                
+        }, null, 0, 800 * 1);
+
 
         internal static ServiceInstanceInfo GetServiceInstanceInfo(ServiceInstance Instance)
                 => _ServiceInstances.ContainsKey(Instance)
@@ -122,12 +138,65 @@ namespace FPServer.Core
                                                                                         where t.User == User
                                                                                         select t).ToList()[0].EncryptToken : null;
 
+
+        private static string _GetHashToken(ServiceInstance server)
+        {
+            var hashobj = new Helper.HashProvider();
+            var ranstrobj = new Helper.RandomGenerator();
+            string hashtoken = hashobj.Hash(ranstrobj.getRandomString(50));
+            while(true)
+            {
+                bool vt = true;
+                foreach (var t in _ServiceInstances.Keys)
+                    if (t.Info.HashToken == hashtoken)
+                        vt = false;
+                if (vt) break;
+                hashtoken = hashobj.Hash(ranstrobj.getRandomString(50));
+            }
+            return hashtoken;
+
+        }
+
+        public static ServiceInstance recoverService(string HashToken,Action<string> del)
+        {
+            var list = (from t in _IntServiceInstancesInfos.Values
+                       where t.Value.ToString() == HashToken
+                       select t.Value).ToList();
+
+            ServiceInstanceInfo info = list.Count > 0 ? list[0] : null;
+            if (info == null)
+            {
+                del.Invoke(HashToken);
+                return getService();
+            }
+            return getService(info);
+        }
+
+        public static ServiceInstance getService(string HashToken)
+        {
+            foreach (var t in _ServiceInstances.Keys)
+                if (t.Info.HashToken == HashToken)
+                    return t;
+            
+            return getService();
+        }
+
         public static ServiceInstance getService()
         {
             if (_AvaServiceInstances.Count == 0)
                 CreateInstance();
             var ins = _AvaServiceInstances[0];
-            _ServiceInstances.Add(ins, new ServiceInstanceInfo());
+            _ServiceInstances.Add(ins, new ServiceInstanceInfo() { HashToken = _GetHashToken(ins) });
+            _AvaServiceInstances.Remove(ins);
+            return ins;
+        }
+
+        private static ServiceInstance getService(ServiceInstanceInfo info)
+        {
+            if (_AvaServiceInstances.Count == 0)
+                CreateInstance();
+            var ins = _AvaServiceInstances[0];
+            _ServiceInstances.Add(ins, info);
             _AvaServiceInstances.Remove(ins);
             return ins;
         }
@@ -140,6 +209,11 @@ namespace FPServer.Core
 
         internal static void DropInstance(ServiceInstance Instance)
         {
+            var info = GetServiceInstanceInfo(Instance);
+            if (!info.DisposeInfo)
+            {
+                _IntServiceInstancesInfos.Add(info.HashToken, new KeyValuePair<DateTime, ServiceInstanceInfo>(DateTime.Now.AddMinutes(1), info));
+            }
             _ServiceInstances.Remove(Instance);
             _AvaServiceInstances.Add(Instance);
         }
