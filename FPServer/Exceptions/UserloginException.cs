@@ -24,7 +24,8 @@ namespace FPServer.Exceptions
 
     public class UserLoginPermissionException : UserloginException
     {
-        public override string Message => "User Permission error";
+        public Enums.Permission RequirePermission { get; set; }
+        public override string Message => "User Permission error,require"+ RequirePermission;
     }
 
 }

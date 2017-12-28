@@ -8,8 +8,13 @@ namespace FPServer.ModelInstance
 {
     public class ServiceInstanceInfo
     {
+        public ServiceInstanceInfo()
+        {
+            _DuoTime = DateTime.Now;
+        }
+
         [XmlIgnore]
-        private DateTime _DuoTime = new DateTime();
+        private DateTime _DuoTime ;
 
         [XmlIgnore]
         private bool _IsLogin = false;
@@ -29,6 +34,7 @@ namespace FPServer.ModelInstance
         public bool IsLogin { get => _IsLogin; set => _IsLogin = value; }
         public Userx User { get => _User; set => _User = value; }
         public DateTime DuoTime { get => _DuoTime; set => _DuoTime = value; }
+        public TimeSpan DurTime { get => DateTime.Now - _DuoTime; }
         public string EncryptToken { get => _EncryptToken; set => _EncryptToken = value; }
         public bool DisposeInfo { get => _DisposeInfo; set => _DisposeInfo = value; }
         public string HashToken { get => _HashToken; set => _HashToken = value; }

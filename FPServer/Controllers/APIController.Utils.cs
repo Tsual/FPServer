@@ -110,6 +110,7 @@ namespace FPServer.Controllers
                     using (ServiceInstance server = FrameCorex.getService())
                     {
                         server.UserLogin(value.LID, value.PWD);
+                        FrameCorex.GetServiceInstanceInfo(server).DisposeInfo = false;
                         var user = FrameCorex.GetServiceInstanceInfo(server).User;
                         var tarres = new PostResponseModel()
                         {
@@ -117,10 +118,11 @@ namespace FPServer.Controllers
                             Result = Enums.APIResult.Error,
                             ExtResult = { }
                         };
-                        foreach (var t in value.Params.Values)
-                        {
-                            tarres.ExtResult.Add(t, user.Records[t]);
-                        }
+                        if (value.Params != null)
+                            foreach (var t in value.Params.Keys)
+                            {
+                                tarres.ExtResult.Add(t, user.Records[t]);
+                            }
                         return tarres;
 
                     }

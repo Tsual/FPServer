@@ -66,5 +66,17 @@ namespace FPServer.ModelInstance
             db.SaveChanges();
         }
 
+        public bool ContainsKey(AppConfigEnum Key)
+        {
+            string key = Key.ToString();
+            if (key == "" || key == null) return false;
+            Models.AppDbContext db = new Models.AppDbContext();
+            db.Database.EnsureCreated();
+            var items = (from t in db.M_AppConfigModels
+                         where t.Key == key
+                         select t).ToList();
+            return items.Count() > 0;
+        }
+
     }
 }

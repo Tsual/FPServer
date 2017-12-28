@@ -7,7 +7,9 @@ namespace FPServer.APIModel
     {
         public APIResult Result { get; set; }
         public string Message { get; set; }
-        public Dictionary<string, string> ExtResult { get; set; }
+        public Dictionary<string, object> ExtResult { get => _ExtResult; set => _ExtResult = value; }
+
+        private Dictionary<string, object> _ExtResult = new Dictionary<string, object>();
     }
 
 }

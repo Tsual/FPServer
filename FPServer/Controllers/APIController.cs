@@ -23,6 +23,7 @@ namespace FPServer.Controllers
             string token = "";
             using (var server = FrameCorex.getService())
             {
+                server.UserLogin("test1", "test1");
                 token = server.Info.ToString();
                 server.Info.EncryptToken = "test";
                 server.Info.DisposeInfo = false;
@@ -47,6 +48,7 @@ namespace FPServer.Controllers
         [HttpPost]
         public PostResponseModel Post([FromBody]PostInparamModel value)
         {
+            if (value == null) return null;
             if (!value.InparamCheck())
                 return new PostResponseModel()
                 {

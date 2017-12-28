@@ -41,12 +41,50 @@ namespace FPServer.Core
             string PWD_ori_hash_aes = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
 
             if (userset.ElementAt(0).PWD != PWD_ori_hash_aes) throw new UserPwdErrorException { LID = LID };
+            var info = FrameCorex.GetInterruptedInfo(LID);
+            if (info == null)
+            {
+                info = FrameCorex.GetServiceInstanceInfo(this);
+                info.IsLogin = true;
+                info.User = User;
+                info.EncryptToken = FrameCorex.CurrnetAppEncryptor.Encrypt((new HashProvider()).Hash(LID + PWD_ori));
+            }else
+            {
+                FrameCorex.SetServiceInstanceInfo(this, info);
+            }
 
-            var info = FrameCorex.GetServiceInstanceInfo(this);
-            info.IsLogin = true;
-            info.User = User;
-            info.EncryptToken = FrameCorex.CurrnetAppEncryptor.Encrypt((new HashProvider()).Hash(LID + PWD_ori));
+        }
 
+        public void UserLogin(string LID, string PWD_ori, Permission permission)
+        {
+            var userset = (from t in db.M_UserModels
+                           where t.LID == LID
+                           select t).ToList();
+            if (userset.Count() == 0) throw new UserNotfindException() { LID = LID };
+
+            Userx User = userset.ElementAt(0);
+
+            if (User.Infos.UserPermission != permission)
+                throw new UserLoginPermissionException() { LID = LID, RequirePermission = permission };
+
+            string PWD_ori_hash = Userx.HashOripwd(LID, PWD_ori);
+
+            string PWD_ori_hash_aes = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
+
+            if (userset.ElementAt(0).PWD != PWD_ori_hash_aes) throw new UserPwdErrorException { LID = LID };
+
+            var info = FrameCorex.GetInterruptedInfo(LID);
+            if (info == null)
+            {
+                info = FrameCorex.GetServiceInstanceInfo(this);
+                info.IsLogin = true;
+                info.User = User;
+                info.EncryptToken = FrameCorex.CurrnetAppEncryptor.Encrypt((new HashProvider()).Hash(LID + PWD_ori));
+            }
+            else
+            {
+                FrameCorex.SetServiceInstanceInfo(this, info);
+            }
         }
 
         public void UserLogout()

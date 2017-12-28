@@ -5,5 +5,6 @@ namespace FPServer.Interfaces
     public interface IAppConfigs
     {
         string this[AppConfigEnum key] { get; set; }
+        bool ContainsKey(AppConfigEnum Key);
     }
 }
