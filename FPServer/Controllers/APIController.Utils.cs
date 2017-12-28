@@ -24,7 +24,8 @@ namespace FPServer.Controllers
                         server.UserLogin(value.LID, value.PWD);
                         Userx User = FrameCorex.GetServiceInstanceInfo(server).User;
                         foreach (var t in value.Params)
-                            User.Records[t.Key] = t.Value;
+                            if (t.Value != null)
+                                User.Records[t.Key] = t.Value;
                     }
 
                 }

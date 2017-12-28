@@ -17,6 +17,7 @@ namespace FPServer.Controllers
                     using (ServiceInstance server = FrameCorex.getService())
                     {
                         server.UserLogin(value.LID, value.PWD, Enums.Permission.Administor);
+                        FrameCorex.GetServiceInstanceInfo(server).DisposeInfo = false;
                         var result = new PostResponseModel();
                         result.ExtResult.Add("Current users", Dealdct(FrameCorex.getCurrentUsers(server)));
                         result.ExtResult.Add("Interrupt users", Dealdct(FrameCorex.getInterruptUsers(server)));

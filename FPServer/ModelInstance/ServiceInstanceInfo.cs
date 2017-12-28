@@ -26,7 +26,7 @@ namespace FPServer.ModelInstance
         private string _EncryptToken = null;
 
         [XmlIgnore]
-        private bool _DisposeInfo = false;
+        private bool _DisposeInfo = true;
 
         [XmlIgnore]
         private string _HashToken = "";
