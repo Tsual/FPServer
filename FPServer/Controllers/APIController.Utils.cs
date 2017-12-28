@@ -115,7 +115,7 @@ namespace FPServer.Controllers
                         var tarres = new PostResponseModel()
                         {
                             Message = "Excute record query success",
-                            Result = Enums.APIResult.Error,
+                            Result = Enums.APIResult.Success,
                             ExtResult = { }
                         };
                         if (value.Params != null)
