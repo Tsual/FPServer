@@ -113,8 +113,7 @@ namespace FPServer.Core
         public static Dictionary<string, object> LocalServerState(ServiceInstance server)
         {
             if ((int)ServiceInstanceInfo(server).User.Infos.UserPermission < 2) return null;
-            
-            return null;
+            return ServerUtil.LocalServerState(server);
         }
 
         public static List<ServiceInstanceInfo> CurrentUsers(ServiceInstance server)
