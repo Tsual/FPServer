@@ -9,11 +9,16 @@ using FPServer.Exceptions;
 using System.Threading;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
+using Microsoft.AspNetCore.Server;
 
 namespace FPServer.Core
 {
-    public class FrameCorex
+    /// <summary>
+    /// 核心互访
+    /// </summary>
+    public partial class FrameCorex
     {
+
 
         private FrameCorex()
         {
@@ -29,102 +34,12 @@ namespace FPServer.Core
         static FrameCorex()
         {
             _DefaultConfig();
-            _CheckCreateDeaultUser();
+            UserHelper._CheckCreateDeaultUser();
         }
 
-        private static void _CheckCreateDeaultUser()
-        {
-            AppDbContext db = new AppDbContext();
-            var guest = (from t in db.M_UserModels
-                         where t.LID == "Guest"
-                         select t).ToArray();
-            if (guest.Length == 0)
-            {
-                string PWD_ori_hash = Userx.HashOripwd("Guest", "Guest");
-                string PWD_ori_hash_aes = CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
-                Userx um = new UserModel()
-                {
-                    LID = "Guest",
-                    PWD = PWD_ori_hash_aes
-                };
-                um.Infos.UserPermission = Enums.Permission.Guest;
-                db.Entry((UserModel)um).State = Microsoft.EntityFrameworkCore.EntityState.Added;
-            }
-            else
-            {
-                Userx um = guest[0];
-                if (um.Infos.UserPermission != Enums.Permission.Guest)
-                {
-                    um.Infos.UserPermission = Enums.Permission.Guest;
-                    db.Entry((UserModel)um).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                }
-            }
 
-            var root = (from t in db.M_UserModels
-                        where t.LID == "Root"
-                        select t).ToArray();
-            if (root.Length == 0)
-            {
 
-                string PWD_ori_hash = Userx.HashOripwd("Root", "Root");
-                string PWD_ori_hash_aes = CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
-                Userx um = new UserModel()
-                {
-                    LID = "Root",
-                    PWD = PWD_ori_hash_aes
-                };
-                um.Infos.UserPermission = Enums.Permission.root;
-                db.Entry((UserModel)um).State = Microsoft.EntityFrameworkCore.EntityState.Added;
-            }
-            else
-            {
-                Userx um = root[0];
-                if (um.Infos.UserPermission != Enums.Permission.root)
-                {
-                    um.Infos.UserPermission = Enums.Permission.root;
-                    db.Entry((UserModel)um).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                }
-            }
 
-            var admin = (from t in db.M_UserModels
-                         where t.LID == "Admin"
-                         select t).ToArray();
-            if (admin.Length == 0)
-            {
-
-                string PWD_ori_hash = Userx.HashOripwd("Admin", "Admin");
-                string PWD_ori_hash_aes = CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
-                Userx um = new UserModel()
-                {
-                    LID = "Admin",
-                    PWD = PWD_ori_hash_aes
-                };
-                um.Infos.UserPermission = Enums.Permission.Administor;
-                db.Entry((UserModel)um).State = Microsoft.EntityFrameworkCore.EntityState.Added;
-            }
-            else
-            {
-                Userx um = admin[0];
-                if (um.Infos.UserPermission != Enums.Permission.Administor)
-                {
-                    um.Infos.UserPermission = Enums.Permission.Administor;
-                    db.Entry((UserModel)um).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                }
-            }
-
-            db.SaveChanges();
-        }
-
-        internal static bool _CheckLIDPWD(string LID, string PWD)
-        {
-            AppDbContext db = new AppDbContext();
-            string PWD_ori_hash = Userx.HashOripwd(LID, PWD);
-            string PWD_ori_hash_aes = CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
-            var user = (from t in db.M_UserModels
-                        where t.LID == LID && t.PWD == PWD_ori_hash_aes
-                        select t).ToArray();
-            return user.Length == 1;
-        }
 
 
 
@@ -160,11 +75,11 @@ namespace FPServer.Core
                 _IntServiceInstancesInfos.Remove(t.Value.HashToken);
                 Debug.WriteLine("Remove Timer Excute " + t);
             }
-                
+
         }, null, 0, 800 * 1);
 
         #region 核心类互访方法
-        internal static ServiceInstanceInfo GetServiceInstanceInfo(ServiceInstance Instance)
+        internal static ServiceInstanceInfo ServiceInstanceInfo(ServiceInstance Instance)
                 => _ServiceInstances.ContainsKey(Instance)
                 ? _ServiceInstances[Instance]
                 : throw new ServiceNotfindException() { Instance = Instance };
@@ -175,51 +90,56 @@ namespace FPServer.Core
         }
 
 
-        internal static bool CheckUserLogin(Userx User) => (from t in _ServiceInstances.Values
-                                                            where t.User == User
-                                                            select t).ToArray().Length > 0;
-
-        internal static string _FindEncryptToken(Userx User) => CheckUserLogin(User) ? (from t in _ServiceInstances.Values
-                                                                                        where t.User == User
-                                                                                        select t).ToList()[0].EncryptToken : null;
-
-        internal static ServiceInstanceInfo GetInterruptedInfo(string LID)
+        internal static ServiceInstanceInfo InterruptedInfo(string LID)
         {
             var ars = (from t in _IntServiceInstancesInfos
                        where t.Value.Value.User.Origin.LID == LID
                        select t).ToArray();
-            if(ars.Length > 0)
+            if (ars.Length > 0)
             {
                 _IntServiceInstancesInfos.Remove(ars[0].Key);
                 return ars[0].Value.Value;
             }
-            return   null;
+            return null;
         }
 
         #endregion
-        public static IReadOnlyCollection<ServiceInstanceInfo> getCurrentUsers(ServiceInstance server)
+
+        /// <summary>
+        /// require Admin+
+        /// </summary>
+        /// <param name="server"></param>
+        /// <returns></returns>
+        public static Dictionary<string, object> LocalServerState(ServiceInstance server)
         {
-            var crInfo = GetServiceInstanceInfo(server); 
-            if (crInfo == null) throw new UserNotLoginException();
-            if (crInfo.User.Infos.UserPermission != Enums.Permission.Administor) throw new UserPermissionException() { RequiredPermission = Enums.Permission.Administor };
-            return new ReadOnlyCollection<ServiceInstanceInfo>(_ServiceInstances.Values.ToList());
+            if ((int)ServiceInstanceInfo(server).User.Infos.UserPermission < 2) return null;
+            
+            return null;
         }
 
-        public static IReadOnlyCollection<ServiceInstanceInfo> getInterruptUsers(ServiceInstance server)
+        public static List<ServiceInstanceInfo> CurrentUsers(ServiceInstance server)
         {
-            var crInfo = GetServiceInstanceInfo(server);
+            var crInfo = ServiceInstanceInfo(server);
             if (crInfo == null) throw new UserNotLoginException();
             if (crInfo.User.Infos.UserPermission != Enums.Permission.Administor) throw new UserPermissionException() { RequiredPermission = Enums.Permission.Administor };
-            return new ReadOnlyCollection<ServiceInstanceInfo>((from t in _IntServiceInstancesInfos
-                                                                select t.Value.Value).ToList());
+            return _ServiceInstances.Values.ToList();
         }
 
-        private static string _GetHashToken(ServiceInstance server)
+        public static List<ServiceInstanceInfo> InterruptUsers(ServiceInstance server)
+        {
+            var crInfo = ServiceInstanceInfo(server);
+            if (crInfo == null) throw new UserNotLoginException();
+            if (crInfo.User.Infos.UserPermission != Enums.Permission.Administor) throw new UserPermissionException() { RequiredPermission = Enums.Permission.Administor };
+            return (from t in _IntServiceInstancesInfos
+                    select t.Value.Value).ToList();
+        }
+
+        private static string _AppHashToken(ServiceInstance server)
         {
             var hashobj = new Helper.HashProvider();
             var ranstrobj = new Helper.RandomGenerator();
             string hashtoken = hashobj.Hash(ranstrobj.getRandomString(50));
-            while(true)
+            while (true)
             {
                 bool vt = true;
                 foreach (var t in _ServiceInstances.Keys)
@@ -238,51 +158,51 @@ namespace FPServer.Core
         /// <param name="HashToken">HashToken</param>
         /// <param name="ServiceNotFindCallback">ServiceNotFind Callback</param>
         /// <returns></returns>
-        public static ServiceInstance recoverService(string HashToken,Action<string> ServiceNotFindCallback)
+        public static ServiceInstance RecoverService(string HashToken, Action<string> ServiceNotFindCallback)
         {
             var list = (from t in _IntServiceInstancesInfos.Values
-                       where t.Value.ToString() == HashToken
-                       select t.Value).ToList();
+                        where t.Value.ToString() == HashToken
+                        select t.Value).ToList();
 
             ServiceInstanceInfo info = list.Count > 0 ? list[0] : null;
             if (info == null)
             {
                 ServiceNotFindCallback.Invoke(HashToken);
-                return getService();
+                return GetService();
             }
-            return getService(info);
+            return GetService(info);
         }
 
-        public static ServiceInstance getService(string HashToken)
+        public static ServiceInstance GetService(string HashToken)
         {
             foreach (var t in _ServiceInstances.Keys)
                 if (t.Info.HashToken == HashToken)
                     return t;
-            
-            return getService();
+
+            return GetService();
         }
 
-        public static ServiceInstance getService()
+        public static ServiceInstance GetService()
         {
             if (_AvaServiceInstances.Count == 0)
-                CreateInstance();
+                _CreateInstance();
             var ins = _AvaServiceInstances[0];
-            _ServiceInstances.Add(ins, new ServiceInstanceInfo() { HashToken = _GetHashToken(ins) });
+            _ServiceInstances.Add(ins, new ServiceInstanceInfo() { HashToken = _AppHashToken(ins) });
             _AvaServiceInstances.Remove(ins);
             return ins;
         }
 
-        private static ServiceInstance getService(ServiceInstanceInfo info)
+        private static ServiceInstance GetService(ServiceInstanceInfo info)
         {
             if (_AvaServiceInstances.Count == 0)
-                CreateInstance();
+                _CreateInstance();
             var ins = _AvaServiceInstances[0];
             _ServiceInstances.Add(ins, info);
             _AvaServiceInstances.Remove(ins);
             return ins;
         }
 
-        private static void CreateInstance()
+        private static void _CreateInstance()
         {
             ServiceInstance res = new ServiceInstance();
             _AvaServiceInstances.Add(res);
@@ -290,7 +210,7 @@ namespace FPServer.Core
 
         internal static void DropInstance(ServiceInstance Instance)
         {
-            var info = GetServiceInstanceInfo(Instance);
+            var info = ServiceInstanceInfo(Instance);
             if (!info.DisposeInfo)
             {
                 _IntServiceInstancesInfos.Add(info.HashToken, new KeyValuePair<DateTime, ServiceInstanceInfo>(DateTime.Now.AddMinutes(Convert.ToDouble(Config[Enums.AppConfigEnum.ServiceDropTime])), info));

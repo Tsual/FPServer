@@ -3,6 +3,7 @@
     public enum AdminAPIOperation
     {
         None,
-        GetAllUserState
+        GetAllUserState,
+        GetServerState
     }
 }

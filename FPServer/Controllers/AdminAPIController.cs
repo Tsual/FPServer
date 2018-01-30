@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using FPServer.APIModel;
+using FPServer.Enums;
 
 namespace FPServer.Controllers
 {
@@ -19,19 +20,22 @@ namespace FPServer.Controllers
             if (!value.InparamCheck())
                 return new PostResponseModel()
                 {
-                    Message = "missing value",
-                    Result = Enums.APIResult.Error
+                    Message = "missing value Operation Enum:" + String.Join(",", Enum.GetNames(typeof(AdminAPIOperation))),
+                    Result = APIResult.Error
                 };
 
             switch (value.Operation)
             {
-                case Enums.AdminAPIOperation.GetAllUserState:
+                case AdminAPIOperation.GetAllUserState:
                     return Util._GetAllUserState(value);
+                case AdminAPIOperation.GetServerState:
+                    return Util._GetServerState(value);
+
             }
             return new PostResponseModel()
             {
                 Message = "Operation not support",
-                Result = Enums.APIResult.Error
+                Result = APIResult.Error
             };
         }
     }

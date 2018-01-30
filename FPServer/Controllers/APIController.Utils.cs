@@ -19,10 +19,10 @@ namespace FPServer.Controllers
             {
                 try
                 {
-                    using (var server = FrameCorex.getService())
+                    using (var server = FrameCorex.GetService())
                     {
                         server.UserLogin(value.LID, value.PWD);
-                        Userx User = FrameCorex.GetServiceInstanceInfo(server).User;
+                        Userx User = FrameCorex.ServiceInstanceInfo(server).User;
                         foreach (var t in value.Params)
                             if (t.Value != null)
                                 User.Records[t.Key] = t.Value;
@@ -73,7 +73,7 @@ namespace FPServer.Controllers
             {
                 try
                 {
-                    using (ServiceInstance server = FrameCorex.getService())
+                    using (ServiceInstance server = FrameCorex.GetService())
                     {
                         if (server.UserRegist_CheckLIDNotExsist(value.LID))
                         {
@@ -108,11 +108,11 @@ namespace FPServer.Controllers
             {
                 try
                 {
-                    using (ServiceInstance server = FrameCorex.getService())
+                    using (ServiceInstance server = FrameCorex.GetService())
                     {
                         server.UserLogin(value.LID, value.PWD);
-                        FrameCorex.GetServiceInstanceInfo(server).DisposeInfo = false;
-                        var user = FrameCorex.GetServiceInstanceInfo(server).User;
+                        FrameCorex.ServiceInstanceInfo(server).DisposeInfo = false;
+                        var user = FrameCorex.ServiceInstanceInfo(server).User;
                         var tarres = new PostResponseModel()
                         {
                             Message = "Excute record query success",
@@ -142,10 +142,10 @@ namespace FPServer.Controllers
             {
                 try
                 {
-                    using (ServiceInstance server = FrameCorex.getService())
+                    using (ServiceInstance server = FrameCorex.GetService())
                     {
                         server.UserLogin(value.LID, value.PWD);
-                        var user = FrameCorex.GetServiceInstanceInfo(server).User;
+                        var user = FrameCorex.ServiceInstanceInfo(server).User;
                         foreach (var t in value.Params.Values)
                         {
                             user.Records.Delete(t);

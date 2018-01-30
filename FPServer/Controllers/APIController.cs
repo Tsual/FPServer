@@ -21,7 +21,7 @@ namespace FPServer.Controllers
         public PostInparamModel Get()
         {
             string token = "";
-            using (var server = FrameCorex.getService())
+            using (var server = FrameCorex.GetService())
             {
                 server.UserLogin("test1", "test1");
                 token = server.Info.ToString();
@@ -29,7 +29,7 @@ namespace FPServer.Controllers
                 server.Info.DisposeInfo = false;
             }
             Thread.Sleep(2000);
-            using (var server = FrameCorex.recoverService(token,(c)=> { }))
+            using (var server = FrameCorex.RecoverService(token,(c)=> { }))
             {
                 server.Info.EncryptToken = "check";
             }
@@ -52,7 +52,7 @@ namespace FPServer.Controllers
             if (!value.InparamCheck())
                 return new PostResponseModel()
                 {
-                    Message = "missing value",
+                    Message = "Missing value, APIOperation Enum:" + String.Join(",", Enum.GetNames(typeof(Enums.APIOperation))),
                     Result = Enums.APIResult.Error
                 };
             switch (value.Operation)

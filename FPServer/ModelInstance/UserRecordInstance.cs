@@ -7,6 +7,9 @@ using System;
 
 namespace FPServer.ModelInstance
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class UserRecordInstance : IUserRecordInstance
     {
         private string _LID
@@ -16,19 +19,31 @@ namespace FPServer.ModelInstance
         private Userx userx;
         private AppDbContext db = new AppDbContext();
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Instance"></param>
         internal UserRecordInstance(ServiceInstance Instance)
         {
-            userx = FrameCorex.GetServiceInstanceInfo(Instance).User;
+            userx = FrameCorex.ServiceInstanceInfo(Instance).User;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="User"></param>
         internal UserRecordInstance(Userx User)
         {
-            if (!FrameCorex.CheckUserLogin(User))
+            if (!FrameCorex.UserHelper._CheckUserLogin(User))
                 throw new UserNotLoginException() { User = User };
             userx = User;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         private string _GetRecord(string key)
         {
             var lis = (from t in db.M_UserRecordModels
@@ -38,6 +53,11 @@ namespace FPServer.ModelInstance
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
         private void _SetRecord(string key, string value)
         {
             var lis = (from t in db.M_UserRecordModels
@@ -62,6 +82,10 @@ namespace FPServer.ModelInstance
             db.SaveChanges();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
         public void Delete(string key)
         {
             var lis = (from t in db.M_UserRecordModels
@@ -72,6 +96,11 @@ namespace FPServer.ModelInstance
             db.SaveChanges();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public string this[string key]
         {
             get

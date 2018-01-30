@@ -17,7 +17,7 @@ namespace FPServer.Core
         DateTime _CreateTime;
         public DateTime CreateTime { get => _CreateTime; }
 
-        public ServiceInstanceInfo Info { get => FrameCorex.GetServiceInstanceInfo(this); }
+        public ServiceInstanceInfo Info { get => FrameCorex.ServiceInstanceInfo(this); }
 
         internal ServiceInstance()
         {
@@ -41,10 +41,10 @@ namespace FPServer.Core
             string PWD_ori_hash_aes = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
 
             if (userset.ElementAt(0).PWD != PWD_ori_hash_aes) throw new UserPwdErrorException { LID = LID };
-            var info = FrameCorex.GetInterruptedInfo(LID);
+            var info = FrameCorex.InterruptedInfo(LID);
             if (info == null)
             {
-                info = FrameCorex.GetServiceInstanceInfo(this);
+                info = FrameCorex.ServiceInstanceInfo(this);
                 info.IsLogin = true;
                 info.User = User;
                 info.EncryptToken = FrameCorex.CurrnetAppEncryptor.Encrypt((new HashProvider()).Hash(LID + PWD_ori));
@@ -73,10 +73,10 @@ namespace FPServer.Core
 
             if (userset.ElementAt(0).PWD != PWD_ori_hash_aes) throw new UserPwdErrorException { LID = LID };
 
-            var info = FrameCorex.GetInterruptedInfo(LID);
+            var info = FrameCorex.InterruptedInfo(LID);
             if (info == null)
             {
-                info = FrameCorex.GetServiceInstanceInfo(this);
+                info = FrameCorex.ServiceInstanceInfo(this);
                 info.IsLogin = true;
                 info.User = User;
                 info.EncryptToken = FrameCorex.CurrnetAppEncryptor.Encrypt((new HashProvider()).Hash(LID + PWD_ori));
@@ -94,7 +94,7 @@ namespace FPServer.Core
 
         public bool UserChangePassword(string old_pwd, string new_pwd)
         {
-            var serverinfo = FrameCorex.GetServiceInstanceInfo(this);
+            var serverinfo = FrameCorex.ServiceInstanceInfo(this);
             if (old_pwd == new_pwd) return false;
             string PWD_ori_hash = Userx.HashOripwd(serverinfo.User.Origin.LID, old_pwd);
             string PWD_ori_hash_aes = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
@@ -140,7 +140,7 @@ namespace FPServer.Core
         public void CreateUser(string LID, string PWD, Permission _Permission)
         {
             if (_Permission == Permission.root) return;
-            if ((int)FrameCorex.GetServiceInstanceInfo(this).User.Infos.UserPermission > 1)
+            if ((int)FrameCorex.ServiceInstanceInfo(this).User.Infos.UserPermission > 1)
                 throw new UserPermissionException()
                 {
                     RequiredPermission = Permission.Administor
@@ -172,7 +172,7 @@ namespace FPServer.Core
         /// <param name="PWD"></param>
         public void ChangePassword(string LID, string PWD)
         {
-            if ((int)FrameCorex.GetServiceInstanceInfo(this).User.Infos.UserPermission > 2)
+            if ((int)FrameCorex.ServiceInstanceInfo(this).User.Infos.UserPermission > 2)
                 throw new UserPermissionException()
                 {
                     RequiredPermission = Permission.root
