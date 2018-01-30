@@ -9,6 +9,19 @@ namespace FPServer.Core
     {
         public class UserHelper
         {
+
+            /// <summary>
+            /// require Admin+
+            /// </summary>
+            /// <param name="server"></param>
+            /// <returns></returns>
+            public static Dictionary<string, object> LocalServerState(ServiceInstance server)
+            {
+                if ((int)ServiceInstanceInfo(server).User.Infos.UserPermission < 2) return null;
+                return ServerUtil.LocalServerState(server);
+            }
+
+
             /// <summary>
             /// 
             /// </summary>

@@ -29,6 +29,7 @@ namespace FPServer.Core
         {
             Config[Enums.AppConfigEnum.AppDBex] = DateTime.Now.ToShortDateString();
             if (!Config.ContainsKey(Enums.AppConfigEnum.ServiceDropTime)) Config[Enums.AppConfigEnum.ServiceDropTime] = "30";
+            if (!Config.ContainsKey(Enums.AppConfigEnum.ServiceInstanceObjectDestroylimit)) Config[Enums.AppConfigEnum.ServiceInstanceObjectDestroylimit] = "10";
         }
 
         static FrameCorex()
@@ -58,6 +59,8 @@ namespace FPServer.Core
         private static Dictionary<ServiceInstance, ServiceInstanceInfo> _ServiceInstances = new Dictionary<ServiceInstance, ServiceInstanceInfo>();
         private static List<ServiceInstance> _AvaServiceInstances = new List<ServiceInstance>();
 
+        #region ServiceInstanceInfo 实例管理
+
         /// <summary>
         /// 延时销毁集合
         /// </summary>
@@ -77,6 +80,11 @@ namespace FPServer.Core
             }
 
         }, null, 0, 800 * 1);
+
+        public static List<ServiceInstanceInfo> CurrentUsers(ServiceInstance server) => _ServiceInstances.Values.ToList();
+
+        public static List<ServiceInstanceInfo> InterruptUsers(ServiceInstance server) => (from t in _IntServiceInstancesInfos select t.Value.Value).ToList();
+        #endregion
 
         #region 核心类互访方法
         internal static ServiceInstanceInfo ServiceInstanceInfo(ServiceInstance Instance)
@@ -105,52 +113,7 @@ namespace FPServer.Core
 
         #endregion
 
-        /// <summary>
-        /// require Admin+
-        /// </summary>
-        /// <param name="server"></param>
-        /// <returns></returns>
-        public static Dictionary<string, object> LocalServerState(ServiceInstance server)
-        {
-            if ((int)ServiceInstanceInfo(server).User.Infos.UserPermission < 2) return null;
-            return ServerUtil.LocalServerState(server);
-        }
-
-        public static List<ServiceInstanceInfo> CurrentUsers(ServiceInstance server)
-        {
-            var crInfo = ServiceInstanceInfo(server);
-            if (crInfo == null) throw new UserNotLoginException();
-            if (crInfo.User.Infos.UserPermission != Enums.Permission.Administor) throw new UserPermissionException() { RequiredPermission = Enums.Permission.Administor };
-            return _ServiceInstances.Values.ToList();
-        }
-
-        public static List<ServiceInstanceInfo> InterruptUsers(ServiceInstance server)
-        {
-            var crInfo = ServiceInstanceInfo(server);
-            if (crInfo == null) throw new UserNotLoginException();
-            if (crInfo.User.Infos.UserPermission != Enums.Permission.Administor) throw new UserPermissionException() { RequiredPermission = Enums.Permission.Administor };
-            return (from t in _IntServiceInstancesInfos
-                    select t.Value.Value).ToList();
-        }
-
-        private static string _AppHashToken(ServiceInstance server)
-        {
-            var hashobj = new Helper.HashProvider();
-            var ranstrobj = new Helper.RandomGenerator();
-            string hashtoken = hashobj.Hash(ranstrobj.getRandomString(50));
-            while (true)
-            {
-                bool vt = true;
-                foreach (var t in _ServiceInstances.Keys)
-                    if (t.Info.HashToken == hashtoken)
-                        vt = false;
-                if (vt) break;
-                hashtoken = hashobj.Hash(ranstrobj.getRandomString(50));
-            }
-            return hashtoken;
-
-        }
-
+        #region ServiceInstance 生命周期管理
         /// <summary>
         /// 
         /// </summary>
@@ -215,12 +178,33 @@ namespace FPServer.Core
                 _IntServiceInstancesInfos.Add(info.HashToken, new KeyValuePair<DateTime, ServiceInstanceInfo>(DateTime.Now.AddMinutes(Convert.ToDouble(Config[Enums.AppConfigEnum.ServiceDropTime])), info));
             }
             _ServiceInstances.Remove(Instance);
-            _AvaServiceInstances.Add(Instance);
+            if (_AvaServiceInstances.Count < Convert.ToDouble(AppConfigs.Current[Enums.AppConfigEnum.ServiceInstanceObjectDestroylimit]) * _ServiceInstances.Count)
+                _AvaServiceInstances.Add(Instance);
         }
+        #endregion
 
         #endregion
 
         #region AppEncryptor
+
+        private static string _AppHashToken(ServiceInstance server)
+        {
+            var hashobj = new Helper.HashProvider();
+            var ranstrobj = new Helper.RandomGenerator();
+            string hashtoken = hashobj.Hash(ranstrobj.getRandomString(50));
+            while (true)
+            {
+                bool vt = true;
+                foreach (var t in _ServiceInstances.Keys)
+                    if (t.Info.HashToken == hashtoken)
+                        vt = false;
+                if (vt) break;
+                hashtoken = hashobj.Hash(ranstrobj.getRandomString(50));
+            }
+            return hashtoken;
+
+        }
+
         public static IEncryptor CurrnetAppEncryptor
         {
             get

@@ -23,7 +23,7 @@ namespace FPServer.Controllers
                     {
                         server.UserLogin(value.LID, value.PWD, Enums.Permission.Administor);
                         FrameCorex.ServiceInstanceInfo(server).DisposeInfo = false;
-                        var qresult = FrameCorex.LocalServerState(server);
+                        var qresult = FrameCorex.UserHelper.LocalServerState(server);
                         if (qresult == null) return new PostResponseModel() { Result = Enums.APIResult.Error };
                         return new PostResponseModel() {
                             Result = Enums.APIResult.Success,

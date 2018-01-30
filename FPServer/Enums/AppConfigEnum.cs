@@ -16,7 +16,12 @@
 
         RandomStringCount,
 
-        ServiceDropTime
+        ServiceDropTime,
+
+        /// <summary>
+        /// Ava>cur * ServiceInstanceObjectDestroylimit 将不再回收对象
+        /// </summary>
+        ServiceInstanceObjectDestroylimit
 
 
     }

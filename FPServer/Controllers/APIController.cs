@@ -52,7 +52,7 @@ namespace FPServer.Controllers
             if (!value.InparamCheck())
                 return new PostResponseModel()
                 {
-                    Message = "Missing value, APIOperation Enum:" + String.Join(",", Enum.GetNames(typeof(Enums.APIOperation))),
+                    Message = "Missing value",
                     Result = Enums.APIResult.Error
                 };
             switch (value.Operation)
@@ -68,7 +68,7 @@ namespace FPServer.Controllers
             }
             return new PostResponseModel()
             {
-                Message = "Operation not support",
+                Message = "Operation not support, APIOperation Enum:" + String.Join(",", Enum.GetNames(typeof(Enums.APIOperation))),
                 Result = Enums.APIResult.Error
             };
 

@@ -8,6 +8,7 @@ using FPServer.APIModel;
 using FPServer.Core;
 using FPServer.Exceptions;
 using FPServer.ModelInstance;
+using System.Threading;
 
 namespace FPServer.Controllers
 {
@@ -75,6 +76,7 @@ namespace FPServer.Controllers
                 {
                     using (ServiceInstance server = FrameCorex.GetService())
                     {
+                        Thread.Sleep(20000);
                         if (server.UserRegist_CheckLIDNotExsist(value.LID))
                         {
                             server.UserRegist(value.LID, value.PWD);
