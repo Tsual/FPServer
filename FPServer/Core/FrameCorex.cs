@@ -10,6 +10,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 using Microsoft.AspNetCore.Server;
+using FPServer.Attribute;
 
 namespace FPServer.Core
 {
@@ -22,14 +23,21 @@ namespace FPServer.Core
 
         private FrameCorex()
         {
-
+            
         }
 
         private static void _DefaultConfig()
         {
             Config[Enums.AppConfigEnum.AppDBex] = DateTime.Now.ToShortDateString();
-            if (!Config.ContainsKey(Enums.AppConfigEnum.ServiceDropTime)) Config[Enums.AppConfigEnum.ServiceDropTime] = "30";
-            if (!Config.ContainsKey(Enums.AppConfigEnum.ServiceInstanceObjectDestroylimit)) Config[Enums.AppConfigEnum.ServiceInstanceObjectDestroylimit] = "10";
+            foreach(var t in Enum.GetValues(typeof(Enums.AppConfigEnum)))
+            {
+                foreach(var value in t.GetType().GetField(t.ToString()).GetCustomAttributes(typeof(AppConfigDefaultAttribute), false))
+                {
+                    if (!Config.ContainsKey((Enums.AppConfigEnum)t))
+                        Config[(Enums.AppConfigEnum)t] = ((AppConfigDefaultAttribute)value).DefaultValue;
+                }
+            }
+
         }
 
         static FrameCorex()
@@ -174,12 +182,14 @@ namespace FPServer.Core
         {
             var info = ServiceInstanceInfo(Instance);
             if (!info.DisposeInfo)
-            {
-                _IntServiceInstancesInfos.Add(info.HashToken, new KeyValuePair<DateTime, ServiceInstanceInfo>(DateTime.Now.AddMinutes(Convert.ToDouble(Config[Enums.AppConfigEnum.ServiceDropTime])), info));
-            }
-            _ServiceInstances.Remove(Instance);
-            if (_AvaServiceInstances.Count < Convert.ToDouble(AppConfigs.Current[Enums.AppConfigEnum.ServiceInstanceObjectDestroylimit]) * _ServiceInstances.Count)
+                _IntServiceInstancesInfos.Add(info.HashToken, 
+                    new KeyValuePair<DateTime, ServiceInstanceInfo>(
+                        DateTime.Now.AddMinutes(Convert.ToDouble(Config[Enums.AppConfigEnum.ServiceDropTime])), info));
+            
+            if (_AvaServiceInstances.Count < 
+                Convert.ToDouble(AppConfigs.Current[Enums.AppConfigEnum.ServiceInstanceObjectDestroylimit]) * _ServiceInstances.Count)
                 _AvaServiceInstances.Add(Instance);
+            _ServiceInstances.Remove(Instance);
         }
         #endregion
 

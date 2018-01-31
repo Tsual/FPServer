@@ -1,4 +1,7 @@
-﻿namespace FPServer.Enums
+﻿using FPServer.Attribute;
+using System;
+
+namespace FPServer.Enums
 {
     public enum AppConfigEnum {
         /// <summary>
@@ -16,11 +19,13 @@
 
         RandomStringCount,
 
+        [AppConfigDefault("45")]
         ServiceDropTime,
 
         /// <summary>
         /// Ava>cur * ServiceInstanceObjectDestroylimit 将不再回收对象
         /// </summary>
+        [AppConfigDefault("8")]
         ServiceInstanceObjectDestroylimit
 
 
