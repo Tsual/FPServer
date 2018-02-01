@@ -17,6 +17,7 @@ namespace FPServer.Controllers
     public partial class APIController : Controller
     {
 
+
         [HttpGet]
         public PostInparamModel Get()
         {
@@ -29,7 +30,7 @@ namespace FPServer.Controllers
                 server.Info.DisposeInfo = false;
             }
             Thread.Sleep(2000);
-            using (var server = FrameCorex.RecoverService(token,(c)=> { }))
+            using (var server = FrameCorex.RecoverService(token, (c) => { }))
             {
                 server.Info.EncryptToken = "check";
             }
@@ -55,24 +56,27 @@ namespace FPServer.Controllers
                     Message = "Missing value",
                     Result = Enums.APIResult.Error
                 };
-            switch (value.Operation)
+            try
             {
-                case Enums.APIOperation.AddRecord:
-                    return Utils._AddRecord(value);
-                case Enums.APIOperation.Regist:
-                    return Utils._Regist(value);
-                case Enums.APIOperation.GetRecord:
-                    return Utils._GetRecord(value);
-                case Enums.APIOperation.DeleteRecord:
-                    return Utils._DeleteRecord(value);
+                return typeof(Utils).GetMethod("_" + value.Operation.ToString())?
+                    .Invoke(null, new object[] { value }) as PostResponseModel;
             }
-            return new PostResponseModel()
+            catch (FPException ex)
             {
-                Message = "Operation not support, APIOperation Enum:" + String.Join(",", Enum.GetNames(typeof(Enums.APIOperation))),
-                Result = Enums.APIResult.Error
-            };
-
-
+                return new PostResponseModel()
+                {
+                    Message = ex.Message,
+                    Result = Enums.APIResult.Error
+                };
+            }
+            catch (Exception)
+            {
+                return new PostResponseModel()
+                {
+                    Message = "Operation not support, APIOperation Enum:" + String.Join(",", Enum.GetNames(typeof(Enums.APIOperation))),
+                    Result = Enums.APIResult.Error
+                };
+            }
         }
 
 

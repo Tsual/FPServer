@@ -11,6 +11,8 @@ using System.Diagnostics;
 using System.Collections.ObjectModel;
 using Microsoft.AspNetCore.Server;
 using FPServer.Attribute;
+using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Logging;
 
 namespace FPServer.Core
 {
@@ -19,6 +21,7 @@ namespace FPServer.Core
     /// </summary>
     public partial class FrameCorex
     {
+        private static ILogger Logger = new ConsoleLoggerProvider(new ConsoleLoggerSettings()).CreateLogger("INFO-FrameCorex");
 
 
         private FrameCorex()
@@ -83,7 +86,7 @@ namespace FPServer.Core
                                where Math.Abs((t.Key - DateTime.Now).Minutes) <= 1
                                select t).ToList())
             {
-                _IntServiceInstancesInfos.Remove(t.Value.HashToken);
+                _IntServiceInstancesInfos.Remove(t.Value.LoginHashToken);
                 Debug.WriteLine("Remove Timer Excute " + t);
             }
 
@@ -131,7 +134,8 @@ namespace FPServer.Core
         public static ServiceInstance RecoverService(string HashToken, Action<string> ServiceNotFindCallback)
         {
             var list = (from t in _IntServiceInstancesInfos.Values
-                        where t.Value.ToString() == HashToken
+                        where t.Value.LoginHashToken == HashToken
+                        && t.Value.LoginHashToken != null
                         select t.Value).ToList();
 
             ServiceInstanceInfo info = list.Count > 0 ? list[0] : null;
@@ -146,7 +150,7 @@ namespace FPServer.Core
         public static ServiceInstance GetService(string HashToken)
         {
             foreach (var t in _ServiceInstances.Keys)
-                if (t.Info.HashToken == HashToken)
+                if (t.Info.LoginHashToken == HashToken)
                     return t;
 
             return GetService();
@@ -154,21 +158,27 @@ namespace FPServer.Core
 
         public static ServiceInstance GetService()
         {
+            
             if (_AvaServiceInstances.Count == 0)
                 _CreateInstance();
             var ins = _AvaServiceInstances[0];
-            _ServiceInstances.Add(ins, new ServiceInstanceInfo() { HashToken = _AppHashToken(ins) });
+            _ServiceInstances.Add(ins, new ServiceInstanceInfo() { LoginHashToken = _AppHashToken(ins) });
             _AvaServiceInstances.Remove(ins);
-            return ins;
+
+            Logger.Log<string>(LogLevel.Information, new EventId(), null, null, (o, ex) => { return "ServiceInstance-CreateNew-" + DateTime.Now; });
+             return ins;
         }
 
         private static ServiceInstance GetService(ServiceInstanceInfo info)
         {
+            
             if (_AvaServiceInstances.Count == 0)
                 _CreateInstance();
             var ins = _AvaServiceInstances[0];
             _ServiceInstances.Add(ins, info);
             _AvaServiceInstances.Remove(ins);
+
+            Logger.Log<string>(LogLevel.Information, new EventId(), null, null, (o, ex) => { return "ServiceInstance-Recover-" + DateTime.Now; });
             return ins;
         }
 
@@ -182,9 +192,13 @@ namespace FPServer.Core
         {
             var info = ServiceInstanceInfo(Instance);
             if (!info.DisposeInfo)
-                _IntServiceInstancesInfos.Add(info.HashToken, 
+            {
+                if (_IntServiceInstancesInfos.ContainsKey(info.LoginHashToken))
+                    _IntServiceInstancesInfos.Remove(info.LoginHashToken);
+                _IntServiceInstancesInfos.Add(info.LoginHashToken,
                     new KeyValuePair<DateTime, ServiceInstanceInfo>(
                         DateTime.Now.AddMinutes(Convert.ToDouble(Config[Enums.AppConfigEnum.ServiceDropTime])), info));
+            }
             
             if (_AvaServiceInstances.Count < 
                 Convert.ToDouble(AppConfigs.Current[Enums.AppConfigEnum.ServiceInstanceObjectDestroylimit]) * _ServiceInstances.Count)
@@ -201,15 +215,15 @@ namespace FPServer.Core
         {
             var hashobj = new Helper.HashProvider();
             var ranstrobj = new Helper.RandomGenerator();
-            string hashtoken = hashobj.Hash(ranstrobj.getRandomString(50));
+            string hashtoken = hashobj.HashHex(ranstrobj.getRandomString(50));
             while (true)
             {
                 bool vt = true;
                 foreach (var t in _ServiceInstances.Keys)
-                    if (t.Info.HashToken == hashtoken)
+                    if (t.Info.LoginHashToken == hashtoken)
                         vt = false;
                 if (vt) break;
-                hashtoken = hashobj.Hash(ranstrobj.getRandomString(50));
+                hashtoken = hashobj.HashHex(ranstrobj.getRandomString(50));
             }
             return hashtoken;
 

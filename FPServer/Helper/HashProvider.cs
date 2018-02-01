@@ -33,7 +33,10 @@ namespace FPServer.Helper
             }
 
         }
-
+        public string HashHex(string str)
+        {
+            return Convert.ToBase64String(_Hash.ComputeHash(getb(str)));
+        }
 
         public string Hash(string str)
         {

@@ -37,11 +37,11 @@ namespace FPServer.ModelInstance
         public TimeSpan DurTime { get => DateTime.Now - _DuoTime; }
         public string EncryptToken { get => _EncryptToken; set => _EncryptToken = value; }
         public bool DisposeInfo { get => _DisposeInfo; set => _DisposeInfo = value; }
-        public string HashToken { get => _HashToken; set => _HashToken = value; }
+        public string LoginHashToken { get => _HashToken; set => _HashToken = value; }
 
         public override string ToString()
         {
-            return "User: "+User?.Origin?.LID+ ",HashToken: "+ HashToken?.ToString()+ ",DisposeInfo: "+ DisposeInfo;
+            return "User: "+User?.Origin?.LID+ ",HashToken: "+ LoginHashToken?.ToString()+ ",DisposeInfo: "+ DisposeInfo;
         }
     }
 }

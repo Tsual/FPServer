@@ -18,8 +18,7 @@ namespace FPServer.APIModel
 
         public bool InparamCheck()
         {
-            if (LID == null || LID == "") return false;
-            if (PWD == null || PWD == "") return false;
+            if ((Token == null || Token == "") && (LID == null || LID == "" || PWD == null || PWD == "")) return false;
             if (Operation == APIOperation.None) return false;
             return true;
         }
@@ -34,8 +33,7 @@ namespace FPServer.APIModel
 
         public bool InparamCheck()
         {
-            if (LID == null || LID == "") return false;
-            if (PWD == null || PWD == "") return false;
+            if ((Token == null || Token == "") && (LID == null || LID == "" || PWD == null || PWD == "")) return false;
             if (Operation == AdminAPIOperation.None) return false;
             return true;
         }

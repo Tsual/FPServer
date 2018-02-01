@@ -9,6 +9,7 @@ using FPServer.Core;
 using FPServer.Exceptions;
 using FPServer.ModelInstance;
 using System.Threading;
+using System.Diagnostics;
 
 namespace FPServer.Controllers
 {
@@ -27,6 +28,12 @@ namespace FPServer.Controllers
                         foreach (var t in value.Params)
                             if (t.Value != null)
                                 User.Records[t.Key] = t.Value;
+                        return new PostResponseModel()
+                        {
+                            Message = "Record add successs",
+                            Result = Enums.APIResult.Success,
+                            UserLoginToken = FrameCorex.ServiceInstanceInfo(server).LoginHashToken
+                        };
                     }
 
                 }
@@ -62,11 +69,7 @@ namespace FPServer.Controllers
                         Result = Enums.APIResult.Error
                     };
                 }
-                return new PostResponseModel()
-                {
-                    Message = "Record add successs",
-                    Result = Enums.APIResult.Success
-                };
+
 
             }
 
@@ -110,15 +113,19 @@ namespace FPServer.Controllers
             {
                 try
                 {
-                    using (ServiceInstance server = FrameCorex.GetService())
+                    using (ServiceInstance server = FrameCorex.RecoverService(value.Token, (c) => { Debug.WriteLine("Container Token not found Token: " + c); }))
                     {
-                        server.UserLogin(value.LID, value.PWD);
-                        FrameCorex.ServiceInstanceInfo(server).DisposeInfo = false;
+                        if (!FrameCorex.ServiceInstanceInfo(server).IsLogin)
+                        {
+                            server.UserLogin(value.LID, value.PWD);
+                            FrameCorex.ServiceInstanceInfo(server).DisposeInfo = false;
+                        }
                         var user = FrameCorex.ServiceInstanceInfo(server).User;
                         var tarres = new PostResponseModel()
                         {
                             Message = "Excute record query success",
                             Result = Enums.APIResult.Success,
+                            UserLoginToken = FrameCorex.ServiceInstanceInfo(server).LoginHashToken,
                             ExtResult = { }
                         };
                         if (value.Params != null)

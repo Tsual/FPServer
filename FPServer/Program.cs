@@ -20,6 +20,12 @@ namespace FPServer
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
+            .ConfigureLogging((ctx, log) =>
+            {
+                log.AddConfiguration(ctx.Configuration.GetSection("Logging"));
+                log.AddDebug();
+                log.AddConsole();
+            })
                 .Build();
     }
 }
