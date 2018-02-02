@@ -16,7 +16,7 @@ namespace FPServer.Core
         AppDbContext db = new AppDbContext();
         DateTime _CreateTime;
         public DateTime CreateTime { get => _CreateTime; }
-
+        public string HashMark { get; set; }
         public ServiceInstanceInfo Info { get => FrameCorex.ServiceInstanceInfo(this); }
 
         internal ServiceInstance()
@@ -130,6 +130,9 @@ namespace FPServer.Core
             return "ServiceIncetance " + Info;
         }
 
+
+
+        
 
         /// <summary>
         /// 需要admin+权限

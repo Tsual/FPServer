@@ -215,18 +215,17 @@ namespace FPServer.Core
         {
             var hashobj = new Helper.HashProvider();
             var ranstrobj = new Helper.RandomGenerator();
-            string hashtoken = hashobj.HashHex(ranstrobj.getRandomString(50));
+            server.HashMark = hashobj.HashHex(ranstrobj.getRandomString(50));
             while (true)
             {
                 bool vt = true;
                 foreach (var t in _ServiceInstances.Keys)
-                    if (t.Info.LoginHashToken == hashtoken)
+                    if (t.Info.LoginHashToken == server.HashMark)
                         vt = false;
                 if (vt) break;
-                hashtoken = hashobj.HashHex(ranstrobj.getRandomString(50));
+                server.HashMark = hashobj.HashHex(ranstrobj.getRandomString(50));
             }
-            return hashtoken;
-
+            return server.HashMark;
         }
 
         public static IEncryptor CurrnetAppEncryptor

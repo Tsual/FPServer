@@ -13,17 +13,18 @@ namespace FPServer.MVCFormatters
 
         public Task WriteAsync(OutputFormatterWriteContext context)
         {
+
+
+
+
+
+
+
+
+
+
             
-
-
-
-
-
-
-
-
-
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
     }
 
