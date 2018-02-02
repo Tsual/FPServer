@@ -21,13 +21,7 @@ namespace FPServer.ModelInstance
                     return targ[0].Value;
                 else
                 {
-                    string Str_Count = FrameCorex.Config[Enums.AppConfigEnum.RandomStringCount];
-                    if (Str_Count == "")
-                    {
-                        FrameCorex.Config[Enums.AppConfigEnum.RandomStringCount] = 0.ToString();
-                        Str_Count = 0.ToString();
-                    }
-                    int _Count = Convert.ToInt32(Str_Count);
+                    int _Count = Convert.ToInt32(FrameCorex.Config[Enums.AppConfigEnum.RandomStringCount]);
                     int _Increment = ((id - _Count) / 100 + 1) * 100;
                     var rans = new RandomGenerator();
                     for (int i = _Count; i < _Increment + _Count; i++)

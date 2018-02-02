@@ -19,7 +19,7 @@ namespace FPServer.Controllers
 
 
         [HttpGet]
-        public PostInparamModel Get()
+        public PostResponseModel Get()
         {
             string token = "";
             using (var server = FrameCorex.GetService())
@@ -34,7 +34,6 @@ namespace FPServer.Controllers
             {
                 server.Info.EncryptToken = "check";
             }
-
             return null;
         }
 

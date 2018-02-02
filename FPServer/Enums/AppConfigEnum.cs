@@ -17,6 +17,7 @@ namespace FPServer.Enums
 
         AppDBex,
 
+        [AppConfigDefault("0")]
         RandomStringCount,
 
         [AppConfigDefault("45")]
