@@ -33,38 +33,17 @@ namespace FPServer.Helper
             }
 
         }
-        public string HashHex(string str)
-        {
-            return Convert.ToBase64String(_Hash.ComputeHash(getb(str)));
-        }
 
         public string Hash(string str)
         {
-            return gets(_Hash.ComputeHash(getb(str)));
+            return StringByteHelper.GetStringFromBytes(_Hash.ComputeHash(Encoding.UTF8.GetBytes(str)));
         }
 
         public byte[] Hashbytes(string str)
         {
-            return _Hash.ComputeHash(getb(str));
+            return _Hash.ComputeHash(StringByteHelper.GetBytesFromString(str));
         }
 
-        static string gets(byte[] ba)
-        {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < ba.Length; i++)
-            {
-                sb.Append(Convert.ToChar(ba[i]));
-            }
-            return sb.ToString();
-        }
-        static byte[] getb(string str)
-        {
-            List<byte> lb = new List<byte>();
-            for (int i = 0; i < str.Length; i++)
-            {
-                lb.Add(Convert.ToByte(str[i]));
-            }
-            return lb.ToArray();
-        }
+        
     }
 }

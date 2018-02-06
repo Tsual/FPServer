@@ -29,7 +29,6 @@ namespace FPServer.Controllers
                 server.Info.EncryptToken = "test";
                 server.Info.DisposeInfo = false;
             }
-            Thread.Sleep(2000);
             using (var server = FrameCorex.RecoverService(token, (c) => { }))
             {
                 server.Info.EncryptToken = "check";

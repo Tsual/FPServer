@@ -79,7 +79,6 @@ namespace FPServer.Controllers
                 {
                     using (ServiceInstance server = FrameCorex.GetService())
                     {
-                        Thread.Sleep(20000);
                         if (server.UserRegist_CheckLIDNotExsist(value.LID))
                         {
                             server.UserRegist(value.LID, value.PWD);
