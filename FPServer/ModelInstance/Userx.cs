@@ -12,15 +12,8 @@ namespace FPServer.ModelInstance
     public partial class Userx
     {
 
-        public static string HashOripwd(string LID, string PWD_ori)
-        {
-            string str1 = LID + PWD_ori;
-            string str2 = PWD_ori + LID;
-            var hashobj = new HashProvider();
-            string hstr1 = hashobj.Hash(str1);
-            string hstr2 = hashobj.Hash(str2);
-            return hstr1 + hstr2;
-        }
+        public static string HashOripwd(string LID, string PWD_ori) => new HashProvider().Hash(LID + PWD_ori);
+
 
         public static implicit operator UserModel(Userx obj)
         {

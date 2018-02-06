@@ -215,7 +215,7 @@ namespace FPServer.Core
         {
             var hashobj = new Helper.HashProvider();
             var ranstrobj = new Helper.RandomGenerator();
-            server.HashMark = hashobj.HashHex(ranstrobj.getRandomString(50));
+            server.HashMark = hashobj.Hash(ranstrobj.getRandomString(50));
             while (true)
             {
                 bool vt = true;
@@ -223,7 +223,7 @@ namespace FPServer.Core
                     if (t.Info.LoginHashToken == server.HashMark)
                         vt = false;
                 if (vt) break;
-                server.HashMark = hashobj.HashHex(ranstrobj.getRandomString(50));
+                server.HashMark = hashobj.Hash(ranstrobj.getRandomString(50));
             }
             return server.HashMark;
         }
