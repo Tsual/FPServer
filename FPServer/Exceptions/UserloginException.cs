@@ -28,4 +28,15 @@ namespace FPServer.Exceptions
         public override string Message => "User Permission error,require"+ RequirePermission;
     }
 
+    public class UserFaceLoginException : UserloginException
+    {
+        public override string Message => "面部识别失败";
+    }
+
+    public class UserFaceLoginHighDistanceException : UserloginException
+    {
+        public override string Message => "未能识别出有效人脸";
+    }
+
+
 }

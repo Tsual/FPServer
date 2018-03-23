@@ -26,21 +26,20 @@ namespace FPServer.Core
 
         private FrameCorex()
         {
-            
+
         }
 
         private static void _DefaultConfig()
         {
             Config[Enums.AppConfigEnum.AppDBex] = DateTime.Now.ToShortDateString();
-            foreach(var t in Enum.GetValues(typeof(Enums.AppConfigEnum)))
+            foreach (var t in Enum.GetValues(typeof(Enums.AppConfigEnum)))
             {
-                foreach(var value in t.GetType().GetField(t.ToString()).GetCustomAttributes(typeof(AppConfigDefaultAttribute), false))
+                foreach (var value in t.GetType().GetField(t.ToString()).GetCustomAttributes(typeof(AppConfigDefaultAttribute), false))
                 {
                     if (!Config.ContainsKey((Enums.AppConfigEnum)t))
                         Config[(Enums.AppConfigEnum)t] = ((AppConfigDefaultAttribute)value).DefaultValue;
                 }
             }
-
         }
 
         static FrameCorex()
@@ -70,32 +69,7 @@ namespace FPServer.Core
         private static Dictionary<ServiceInstance, ServiceInstanceInfo> _ServiceInstances = new Dictionary<ServiceInstance, ServiceInstanceInfo>();
         private static List<ServiceInstance> _AvaServiceInstances = new List<ServiceInstance>();
 
-        #region ServiceInstanceInfo 实例管理
 
-        /// <summary>
-        /// 延时销毁集合
-        /// </summary>
-        private static Dictionary<string, KeyValuePair<DateTime, ServiceInstanceInfo>> _IntServiceInstancesInfos = new Dictionary<string, KeyValuePair<DateTime, ServiceInstanceInfo>>();
-
-        /// <summary>
-        /// 延时销毁计时器
-        /// </summary>
-        private static Timer InfoCheckTimer = new Timer((o) =>
-        {
-            foreach (var t in (from t in _IntServiceInstancesInfos.Values
-                               where Math.Abs((t.Key - DateTime.Now).Minutes) <= 1
-                               select t).ToList())
-            {
-                _IntServiceInstancesInfos.Remove(t.Value.LoginHashToken);
-                Debug.WriteLine("Remove Timer Excute " + t);
-            }
-
-        }, null, 0, 800 * 1);
-
-        public static List<ServiceInstanceInfo> CurrentUsers(ServiceInstance server) => _ServiceInstances.Values.ToList();
-
-        public static List<ServiceInstanceInfo> InterruptUsers(ServiceInstance server) => (from t in _IntServiceInstancesInfos select t.Value.Value).ToList();
-        #endregion
 
         #region 核心类互访方法
         internal static ServiceInstanceInfo ServiceInstanceInfo(ServiceInstance Instance)
@@ -124,7 +98,66 @@ namespace FPServer.Core
 
         #endregion
 
-        #region ServiceInstance 生命周期管理
+        #region 生命周期管理
+        #region ServiceInstanceInfo 缓存销毁
+
+        /// <summary>
+        /// 延时销毁集合
+        /// </summary>
+        private static Dictionary<string, KeyValuePair<DateTime, ServiceInstanceInfo>> _IntServiceInstancesInfos = new Dictionary<string, KeyValuePair<DateTime, ServiceInstanceInfo>>();
+
+        /// <summary>
+        /// 延时销毁计时器
+        /// </summary>
+        private static Timer InfoCheckTimer = new Timer((o) =>
+        {
+            foreach (var t in (from t in _IntServiceInstancesInfos.Values
+                               where Math.Abs((t.Key - DateTime.Now).Minutes) <= 1
+                               select t).ToList())
+            {
+                _IntServiceInstancesInfos.Remove(t.Value.LoginHashToken);
+                Debug.WriteLine("Remove Timer Excute " + t);
+            }
+
+        }, null, 0, 800 * 1);
+
+        public static List<ServiceInstanceInfo> CurrentUsers(ServiceInstance server) => _ServiceInstances.Values.ToList();
+
+        public static List<ServiceInstanceInfo> InterruptUsers(ServiceInstance server) => (from t in _IntServiceInstancesInfos select t.Value.Value).ToList();
+        #endregion
+        #region ServiceInstance 实例获取
+        public static ServiceInstance GetService(string HashToken)
+        {
+            foreach (var t in _ServiceInstances.Keys)
+                if (t.Info.LoginHashToken == HashToken)
+                    return t;
+
+            return GetService();
+        }
+
+        public static ServiceInstance GetService()
+        {
+            if (_AvaServiceInstances.Count == 0)
+                _CreateInstance();
+            var ins = _AvaServiceInstances[0];
+            _ServiceInstances.Add(ins, new ServiceInstanceInfo() { LoginHashToken = _AppHashToken(ins) });
+            _AvaServiceInstances.Remove(ins);
+            return ins;
+        }
+
+        private static ServiceInstance GetService(ServiceInstanceInfo info)
+        {
+
+            if (_AvaServiceInstances.Count == 0)
+                _CreateInstance();
+            var ins = _AvaServiceInstances[0];
+            _ServiceInstances.Add(ins, info);
+            _AvaServiceInstances.Remove(ins);
+
+            Logger.Log<string>(LogLevel.Information, new EventId(), null, null, (o, ex) => { return "ServiceInstance-Recover-" + DateTime.Now; });
+            return ins;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -147,46 +180,15 @@ namespace FPServer.Core
             return GetService(info);
         }
 
-        public static ServiceInstance GetService(string HashToken)
-        {
-            foreach (var t in _ServiceInstances.Keys)
-                if (t.Info.LoginHashToken == HashToken)
-                    return t;
 
-            return GetService();
-        }
-
-        public static ServiceInstance GetService()
-        {
-            
-            if (_AvaServiceInstances.Count == 0)
-                _CreateInstance();
-            var ins = _AvaServiceInstances[0];
-            _ServiceInstances.Add(ins, new ServiceInstanceInfo() { LoginHashToken = _AppHashToken(ins) });
-            _AvaServiceInstances.Remove(ins);
-
-            Logger.Log<string>(LogLevel.Information, new EventId(), null, null, (o, ex) => { return "ServiceInstance-CreateNew-" + DateTime.Now; });
-             return ins;
-        }
-
-        private static ServiceInstance GetService(ServiceInstanceInfo info)
-        {
-            
-            if (_AvaServiceInstances.Count == 0)
-                _CreateInstance();
-            var ins = _AvaServiceInstances[0];
-            _ServiceInstances.Add(ins, info);
-            _AvaServiceInstances.Remove(ins);
-
-            Logger.Log<string>(LogLevel.Information, new EventId(), null, null, (o, ex) => { return "ServiceInstance-Recover-" + DateTime.Now; });
-            return ins;
-        }
 
         private static void _CreateInstance()
         {
             ServiceInstance res = new ServiceInstance();
             _AvaServiceInstances.Add(res);
         }
+        #endregion
+
 
         internal static void DropInstance(ServiceInstance Instance)
         {
@@ -199,13 +201,16 @@ namespace FPServer.Core
                     new KeyValuePair<DateTime, ServiceInstanceInfo>(
                         DateTime.Now.AddMinutes(Convert.ToDouble(Config[Enums.AppConfigEnum.ServiceDropTime])), info));
             }
-            
-            if (_AvaServiceInstances.Count < 
+
+            if (_AvaServiceInstances.Count <
                 Convert.ToDouble(AppConfigs.Current[Enums.AppConfigEnum.ServiceInstanceObjectDestroylimit]) * _ServiceInstances.Count)
                 _AvaServiceInstances.Add(Instance);
             _ServiceInstances.Remove(Instance);
         }
         #endregion
+
+
+
 
         #endregion
 

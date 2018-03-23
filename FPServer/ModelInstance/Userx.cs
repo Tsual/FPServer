@@ -119,6 +119,16 @@ namespace FPServer.ModelInstance
 
         public Info Infos { get => _Infos; set => _Infos = value; }
         #endregion
+        #region 人脸识别
+        public void SaveFaceRcognizer(string filepath)
+        {
+            Emgu.EmguInvoker.Current.Train(filepath, _Origin.ID);
+        }
+
+
+
+
+        #endregion  
 
         public void SaveInfos()
         {

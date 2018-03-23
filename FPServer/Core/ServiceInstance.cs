@@ -87,6 +87,21 @@ namespace FPServer.Core
             }
         }
 
+        public void UserLogin(string filepath)
+        {
+            try
+            {
+                var fres = Emgu.EmguInvoker.Current.Predict(filepath);
+                //if(fres.Label)
+            }
+            catch (Exception ex)
+            {
+                var ext = new UserFaceLoginException();
+                ext.Data.Add("Cause Exception", ex);
+                throw ext;
+            }
+        }
+
         public void UserLogout()
         {
             this.Dispose();

@@ -27,7 +27,15 @@ namespace FPServer.Enums
         /// Ava>cur * ServiceInstanceObjectDestroylimit 将不再回收对象
         /// </summary>
         [AppConfigDefault("8")]
-        ServiceInstanceObjectDestroylimit
+        ServiceInstanceObjectDestroylimit,
+
+        [AppConfigDefault("Emgu\\Efr_config.xml")]
+        Eigen_Face_Recognizer_default_location,
+
+        [AppConfigDefault("Emgu\\haarcascade_frontalface_default.xml")]
+        Cascade_Classifier_default_location
+
+
 
 
     }
