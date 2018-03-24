@@ -17,7 +17,7 @@ using Microsoft.Extensions.Logging;
 namespace FPServer.Core
 {
     /// <summary>
-    /// 核心互访
+    /// 框架核心类
     /// </summary>
     public partial class FrameCorex
     {
@@ -29,22 +29,10 @@ namespace FPServer.Core
 
         }
 
-        private static void _DefaultConfig()
-        {
-            Config[Enums.AppConfigEnum.AppDBex] = DateTime.Now.ToShortDateString();
-            foreach (var t in Enum.GetValues(typeof(Enums.AppConfigEnum)))
-            {
-                foreach (var value in t.GetType().GetField(t.ToString()).GetCustomAttributes(typeof(AppConfigDefaultAttribute), false))
-                {
-                    if (!Config.ContainsKey((Enums.AppConfigEnum)t))
-                        Config[(Enums.AppConfigEnum)t] = ((AppConfigDefaultAttribute)value).DefaultValue;
-                }
-            }
-        }
 
         static FrameCorex()
         {
-            _DefaultConfig();
+            Config[Enums.AppConfigEnum.AppDBex] = DateTime.Now.ToShortDateString();
             UserHelper._CheckCreateDeaultUser();
         }
 
@@ -69,7 +57,17 @@ namespace FPServer.Core
         private static Dictionary<ServiceInstance, ServiceInstanceInfo> _ServiceInstances = new Dictionary<ServiceInstance, ServiceInstanceInfo>();
         private static List<ServiceInstance> _AvaServiceInstances = new List<ServiceInstance>();
 
+        #region 
+        private static Timer MaintenanceTimer = new Timer((o) =>
+        {
+            OnCirculationMaintenance?.BeginInvoke((obj) => { }, null);
+            OnOnceMaintenance?.BeginInvoke((obj) => { OnOnceMaintenance = null; }, null);
+        }, null, 0, 1000 * 60 * Convert.ToInt32(Config[Enums.AppConfigEnum.MaintenanceTime]));
 
+        public static event Action OnCirculationMaintenance;
+        public static event Action OnOnceMaintenance;
+
+        #endregion
 
         #region 核心类互访方法
         internal static ServiceInstanceInfo ServiceInstanceInfo(ServiceInstance Instance)

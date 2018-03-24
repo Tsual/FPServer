@@ -1,4 +1,5 @@
-﻿using FPServer.Enums;
+﻿using FPServer.Attribute;
+using FPServer.Enums;
 using FPServer.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,14 @@ namespace FPServer.ModelInstance
     {
         private AppConfigs()
         {
-
+            foreach (var t in Enum.GetValues(typeof(Enums.AppConfigEnum)))
+            {
+                foreach (var value in t.GetType().GetField(t.ToString()).GetCustomAttributes(typeof(AppConfigDefaultAttribute), false))
+                {
+                    if (!this.ContainsKey((Enums.AppConfigEnum)t))
+                        this[(Enums.AppConfigEnum)t] = ((AppConfigDefaultAttribute)value).DefaultValue;
+                }
+            }
         }
 
         private static AppConfigs _Current = new AppConfigs();

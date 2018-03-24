@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace FPServer.Helper
@@ -23,5 +24,19 @@ namespace FPServer.Helper
         //}
         //return lb.ToArray();
 
+    }
+
+    public class StringByteHelperBase
+    {
+        private static readonly char[] CharCollection = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+        public static string GetStringFromBytes(byte[] ba)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < ba.Length; i++)
+            {
+                sb.Append(CharCollection[ba[i]/16]+ CharCollection[ba[i] % 16]);
+            }
+            return sb.ToString();
+        }
     }
 }

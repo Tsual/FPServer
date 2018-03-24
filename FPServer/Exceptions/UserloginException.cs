@@ -30,7 +30,7 @@ namespace FPServer.Exceptions
 
     public class UserFaceLoginException : UserloginException
     {
-        public override string Message => "面部识别失败";
+        public override string Message => "面部识别登陆失败";
     }
 
     public class UserFaceLoginHighDistanceException : UserloginException

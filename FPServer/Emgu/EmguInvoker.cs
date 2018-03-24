@@ -7,24 +7,29 @@ using FPServer.Core;
 using System;
 using System.Drawing;
 using System.IO;
+using FPServer.Helper;
 
 namespace FPServer.Emgu
 {
     public class EmguInvoker : IDisposable
     {
-        private static EmguInvoker _Current;
+        private static EmguInvoker _Current = new EmguInvoker();
         public static EmguInvoker Current
         {
             get
             {
-                _Current = new EmguInvoker();
                 return _Current;
             }
         }
 
         private EmguInvoker()
         {
+            FrameCorex.OnCirculationMaintenance += FrameCorex_OnCirculationMaintenance;
+        }
 
+        private void FrameCorex_OnCirculationMaintenance()
+        {
+            SaveEntity();
         }
 
         private bool efr_init = false;
@@ -59,10 +64,10 @@ namespace FPServer.Emgu
         {
             using (Mat image = new Mat(filepath))
             {
-                using (Mat uimg = new Mat())
+                using (Mat uimg = image.CvtColor(ColorConversion.Bgr2Gray))
                 {
-                    CvInvoke.CvtColor(image, uimg, ColorConversion.Bgr2Gray);
-                    CvInvoke.EqualizeHist(uimg, uimg);
+                    uimg.EqualizeHist();
+                    uimg.UnionSize();
                     return Efr.Predict(uimg);
                 }
             }
@@ -72,22 +77,22 @@ namespace FPServer.Emgu
         {
             using (Mat image = new Mat(filepath))
             {
-                using (Mat uimg = new Mat())
+                using (Mat uimg = image.CvtColor(ColorConversion.Bgr2Gray))
                 {
-                    CvInvoke.CvtColor(image, uimg, ColorConversion.Bgr2Gray);
-                    CvInvoke.EqualizeHist(uimg, uimg);
-                    Efr.Train(new VectorOfMat(uimg), new VectorOfInt(index));
+                    uimg.EqualizeHist();
+                    uimg.UnionSize();
+                    Efr.Train(new VectorOfMat(new Mat[] { uimg }), new VectorOfInt(new int[] { index }));
                 }
             }
         }
 
         public byte[] Detect(string filepath, string ext)
         {
-            using (Mat uimg = new Mat())
+            Mat image = new Mat(filepath);
+            using (Mat uimg = image.CvtColor(ColorConversion.Bgr2Gray))
             {
-                Mat image = new Mat(filepath);
-                CvInvoke.CvtColor(image, uimg, ColorConversion.Bgr2Gray);
-                CvInvoke.EqualizeHist(uimg, uimg);
+                uimg.EqualizeHist();
+                uimg.UnionSize();
                 foreach (var face in Ccfr.DetectMultiScale(uimg, 1.1, 10, new Size(20, 20)))
                     CvInvoke.Rectangle(image, face, new Bgr(Color.Violet).MCvScalar, 2);
                 var res = new VectorOfByte();

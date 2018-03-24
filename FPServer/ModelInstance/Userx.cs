@@ -54,7 +54,7 @@ namespace FPServer.ModelInstance
             {
                 get
                 {
-                    if (_AESobj == null)
+                    if (_AESobj == null&& !string.IsNullOrEmpty(User.Origin.LID))
                     {
                         var ivhash = new HashProvider(HashProvider.HashAlgorithms.MD5);
                         byte[] _iv = ivhash.Hashbytes(User.Origin.LID);

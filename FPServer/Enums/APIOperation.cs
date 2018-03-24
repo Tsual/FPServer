@@ -10,6 +10,10 @@
 
         GetRecord,
 
-        DeleteRecord
+        DeleteRecord,
+
+        Login,
+
+        InfoModify
     }
 }

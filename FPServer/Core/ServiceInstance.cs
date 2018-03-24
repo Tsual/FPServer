@@ -8,6 +8,7 @@ using System;
 using FPServer.Enums;
 using FPServer.Interfaces;
 using System.Diagnostics;
+using Emgu.CV.Face;
 
 namespace FPServer.Core
 {
@@ -47,8 +48,9 @@ namespace FPServer.Core
                 info = FrameCorex.ServiceInstanceInfo(this);
                 info.IsLogin = true;
                 info.User = User;
-                info.EncryptToken = FrameCorex.CurrnetAppEncryptor.Encrypt((new HashProvider()).Hash(LID + PWD_ori));
-            }else
+                info.EncryptToken = FrameCorex.CurrnetAppEncryptor.Encrypt((new HashProvider()).Hash(LID ));
+            }
+            else
             {
                 FrameCorex.SetServiceInstanceInfo(this, info);
             }
@@ -87,18 +89,29 @@ namespace FPServer.Core
             }
         }
 
-        public void UserLogin(string filepath)
+        public void UserLogin(FaceRecognizer.PredictionResult res)
         {
-            try
+            if (res.Distance > 1)
+                throw new UserFaceLoginException();
+            Userx User = db.M_UserModels.Find(res.Label);
+            if (User == null)
+                throw new UserNotfindException();
+            ServiceInstanceInfo info=null;
+            if(!string.IsNullOrEmpty(User.Origin.LID))
+                info = FrameCorex.InterruptedInfo(User.Origin.LID);
+            if (info == null)
             {
-                var fres = Emgu.EmguInvoker.Current.Predict(filepath);
-                //if(fres.Label)
+                info = FrameCorex.ServiceInstanceInfo(this);
+                info.IsLogin = true;
+                info.User = User;
+                if (!string.IsNullOrEmpty(User.Origin.LID))
+                {
+                    info.EncryptToken = FrameCorex.CurrnetAppEncryptor.Encrypt((new HashProvider()).Hash(User.Origin.LID ));
+                }
             }
-            catch (Exception ex)
+            else
             {
-                var ext = new UserFaceLoginException();
-                ext.Data.Add("Cause Exception", ex);
-                throw ext;
+                FrameCorex.SetServiceInstanceInfo(this, info);
             }
         }
 
@@ -107,22 +120,32 @@ namespace FPServer.Core
             this.Dispose();
         }
 
+        /// <summary>
+        /// 修改密码 该方法不会保存数据库
+        /// </summary>
+        /// <param name="old_pwd">旧密码 可为空</param>
+        /// <param name="new_pwd">新密码</param>
+        /// <returns></returns>
         public bool UserChangePassword(string old_pwd, string new_pwd)
         {
             var serverinfo = FrameCorex.ServiceInstanceInfo(this);
-            if (old_pwd == new_pwd) return false;
-            string PWD_ori_hash = Userx.HashOripwd(serverinfo.User.Origin.LID, old_pwd);
-            string PWD_ori_hash_aes = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
-            if (serverinfo.User.Origin.PWD != PWD_ori_hash_aes) return false;
+            string PWD_ori_hash = "";
+            string PWD_ori_hash_aes = "";
+            if (!string.IsNullOrWhiteSpace(new_pwd))
+            {
+                if (old_pwd == new_pwd) return false;
+                PWD_ori_hash = Userx.HashOripwd(serverinfo.User.Origin.LID, old_pwd);
+                PWD_ori_hash_aes = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
+                if (serverinfo.User.Origin.PWD != PWD_ori_hash_aes) return false;
+            }
             PWD_ori_hash = Userx.HashOripwd(serverinfo.User.Origin.LID, new_pwd);
             serverinfo.User.Origin.PWD = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
-            serverinfo.User.SaveInfos();
             return true;
         }
 
         public bool UserRegist(string LID, string PWD_ori)
         {
-            if (UserRegist_CheckLIDNotExsist(LID) && PWD_ori != "")
+            if (CheckUserNotExist(LID) && PWD_ori != "")
             {
                 string PWD_ori_hash = Userx.HashOripwd(LID, PWD_ori);
                 string PWD_ori_hash_aes = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
@@ -146,8 +169,20 @@ namespace FPServer.Core
         }
 
 
+        public void GenerateEmptyUser()
+        {
+            Info.User = new UserModel();
+            Info.User.Infos.UserPermission = Permission.User;
+            db.Entry((UserModel)Info.User).State = EntityState.Added;
+            db.SaveChanges();
+        }
 
-        
+        public void DeleteCurrentUser()
+        {
+            db.Entry((UserModel)Info.User).State = EntityState.Deleted;
+            db.SaveChanges();
+            this.Info.User = null;
+        }
 
         /// <summary>
         /// 需要admin+权限
@@ -163,7 +198,7 @@ namespace FPServer.Core
                 {
                     RequiredPermission = Permission.Administor
                 };
-            if (UserRegist_CheckLIDNotExsist(LID))
+            if (CheckUserNotExist(LID))
             {
                 string PWD_ori_hash = Userx.HashOripwd(LID, PWD);
                 string PWD_ori_hash_aes = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
@@ -195,7 +230,7 @@ namespace FPServer.Core
                 {
                     RequiredPermission = Permission.root
                 };
-            if (UserRegist_CheckLIDNotExsist(LID))
+            if (CheckUserNotExist(LID))
             {
                 string PWD_ori_hash = Userx.HashOripwd(LID, PWD);
                 string PWD_ori_hash_aes = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
@@ -216,12 +251,17 @@ namespace FPServer.Core
         /// </summary>
         /// <param name="LID">Login ID</param>
         /// <returns></returns>
-        public bool UserRegist_CheckLIDNotExsist(string LID)
+        public bool CheckUserNotExist(string LID)
         {
             var userset = (from t in db.M_UserModels
                            where t.LID == LID
                            select t).ToList();
             return userset.Count() == 0;
+        }
+
+        public bool CheckUserNotExist(int ID)
+        {
+            return db.M_UserModels.Find(ID) == null;
         }
 
         public void Dispose()

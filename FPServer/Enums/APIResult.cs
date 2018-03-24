@@ -3,7 +3,7 @@ using System;
 
 namespace FPServer.Enums
 {
-    
+
     public enum APIResult
     {
         Success,
@@ -12,6 +12,4 @@ namespace FPServer.Enums
         
         Error
     }
-
-
 }
