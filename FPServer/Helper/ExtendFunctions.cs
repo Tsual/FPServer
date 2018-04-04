@@ -2,12 +2,14 @@
 using Emgu.CV.CvEnum;
 using FPServer.APIModel;
 using FPServer.Attribute;
+using FPServer.Core;
 using FPServer.Enums;
 using FPServer.Exceptions;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace FPServer.Helper
@@ -71,6 +73,17 @@ namespace FPServer.Helper
         public static TempFilePath ToTempFilePath(this string obj)
         {
             return new TempFilePath(obj);
+        }
+
+        public static string GenerateUrls(this string[] SplitedStrings)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach(var t in SplitedStrings)
+            {
+                sb.Append("http://" + t + ":" + FrameCorex.Config[AppConfigEnum.AppPort] + ";");
+
+            }
+            return sb.Append("http://localhost:" + FrameCorex.Config[AppConfigEnum.AppPort]).ToString();
         }
     }
 }

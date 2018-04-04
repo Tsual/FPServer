@@ -69,7 +69,10 @@ namespace FPServer.Enums
         /// 维护器周期 分钟
         /// </summary>
         [AppConfigDefault("30")]
-        MaintenanceTime
+        MaintenanceTime,
+
+        [AppConfigDefault("192.168.2.103")]
+        ExtAddres
 
 
 

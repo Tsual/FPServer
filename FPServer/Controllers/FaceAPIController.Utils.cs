@@ -77,12 +77,13 @@ namespace FPServer.Controllers
                         catch (Exception) { throw new UserFaceLoginException(); }
                         var user = FrameCorex.ServiceInstanceInfo(server).User;
 
+                        server.Info.DisposeInfo = false;
 
                         return new PostResponseModel()
                         {
                             Message = "成功",
                             Result = Enums.APIResult.Success,
-                            ExtResult = { { "Name", user.Infos.Name } },
+                            ExtResult = { { "Name", user.Infos.Name },{"LID",user.Origin.LID },{"UID",user.Origin.ID } },
                             UserLoginToken = FrameCorex.ServiceInstanceInfo(server).LoginHashToken
                         };
                     }
@@ -139,6 +140,7 @@ namespace FPServer.Controllers
                         }
 
                         user.SaveInfos();
+                        server.Info.DisposeInfo = false;
 
                         return new PostResponseModel()
                         {

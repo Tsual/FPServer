@@ -4,6 +4,8 @@ using FPServer.Interfaces;
 using FPServer.Models;
 using System.Linq;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace FPServer.ModelInstance
 {
@@ -14,7 +16,7 @@ namespace FPServer.ModelInstance
     {
         private string _LID
         {
-            get => userx.Origin.LID;
+            get => userx.Origin.ID+"";
         }
         private Userx userx;
         private AppDbContext db = new AppDbContext();
@@ -73,7 +75,7 @@ namespace FPServer.ModelInstance
             {
                 var ins = new UserRecordModel()
                 {
-                    LID = _LID,
+                    LID = _LID ?? "",
                     Key = key,
                     Value = value
                 };
@@ -94,6 +96,20 @@ namespace FPServer.ModelInstance
             if (lis.Length == 0) throw new UserRecordNotFindException();
             db.Entry(lis[0]).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
             db.SaveChanges();
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            return (from t in db.M_UserRecordModels
+                    where t.LID == _LID
+                    select t).ToArray().GetEnumerator();
+        }
+
+        public IList<UserRecordModel> GetAll()
+        {
+            return (from t in db.M_UserRecordModels
+                    where t.LID == _LID
+                    select t).ToList();
         }
 
         /// <summary>

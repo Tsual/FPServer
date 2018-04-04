@@ -60,8 +60,9 @@ namespace FPServer.Core
         #region 
         private static Timer MaintenanceTimer = new Timer((o) =>
         {
-            OnCirculationMaintenance?.BeginInvoke((obj) => { }, null);
-            OnOnceMaintenance?.BeginInvoke((obj) => { OnOnceMaintenance = null; }, null);
+            OnCirculationMaintenance?.Invoke();
+            OnOnceMaintenance?.Invoke();
+            OnOnceMaintenance = null;
         }, null, 0, 1000 * 60 * Convert.ToInt32(Config[Enums.AppConfigEnum.MaintenanceTime]));
 
         public static event Action OnCirculationMaintenance;

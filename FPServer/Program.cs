@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using FPServer.Helper;
 using System.Linq;
 using System.Threading.Tasks;
 using FPServer.Core;
@@ -21,8 +22,10 @@ namespace FPServer
             BuildWebHost(args).Run();
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+        //"http://localhost:" + FrameCorex.Config[Enums.AppConfigEnum.AppPort]
+        public static IWebHost BuildWebHost(string[] args)
+        {
+            var res = WebHost.CreateDefaultBuilder(args)
                 .UseUrls("http://localhost:" + FrameCorex.Config[Enums.AppConfigEnum.AppPort])
                 .UseStartup<Startup>()
                 .ConfigureLogging((ctx, log) =>
@@ -30,7 +33,21 @@ namespace FPServer
                     log.AddConfiguration(ctx.Configuration.GetSection("Logging"));
                     log.AddDebug();
                     log.AddConsole();
-                })
-                .Build();
+                });
+
+            //res = res.UseUrls("http://localhost:" + FrameCorex.Config[Enums.AppConfigEnum.AppPort]);
+
+
+            try
+            {
+                res = res.UseUrls(FrameCorex.Config[Enums.AppConfigEnum.ExtAddres].Split('|').GenerateUrls());
+            }
+            catch (Exception)
+            {
+                res = res.UseUrls("http://localhost:" + FrameCorex.Config[Enums.AppConfigEnum.AppPort]);
+            }
+
+            return res.Build();
+        }
     }
 }

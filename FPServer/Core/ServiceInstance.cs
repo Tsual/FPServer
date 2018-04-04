@@ -130,14 +130,6 @@ namespace FPServer.Core
         {
             var serverinfo = FrameCorex.ServiceInstanceInfo(this);
             string PWD_ori_hash = "";
-            string PWD_ori_hash_aes = "";
-            if (!string.IsNullOrWhiteSpace(new_pwd))
-            {
-                if (old_pwd == new_pwd) return false;
-                PWD_ori_hash = Userx.HashOripwd(serverinfo.User.Origin.LID, old_pwd);
-                PWD_ori_hash_aes = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
-                if (serverinfo.User.Origin.PWD != PWD_ori_hash_aes) return false;
-            }
             PWD_ori_hash = Userx.HashOripwd(serverinfo.User.Origin.LID, new_pwd);
             serverinfo.User.Origin.PWD = FrameCorex.CurrnetAppEncryptor.Encrypt(PWD_ori_hash);
             return true;

@@ -21,12 +21,17 @@ namespace FPServer.Controllers
             {
                 try
                 {
-                    using (var server = FrameCorex.GetService())
+                    using (var server = FrameCorex.RecoverService(value.Token, (c) => { Debug.WriteLine("Container Token not found Token: " + c); }))
                     {
-                        server.UserLogin(value.LID, value.PWD);
+                        if (server.Info.User == null) return new PostResponseModel()
+                        {
+                            Message = "登陆失败",
+                            Result = Enums.APIResult.Error,
+                            ExtResult = { }
+                        };
                         Userx User = FrameCorex.ServiceInstanceInfo(server).User;
-                        if (string.IsNullOrEmpty(User.Origin.LID) || string.IsNullOrEmpty(User.Origin.PWD))
-                            throw new FPException("请先补全注册信息");
+                        //if (string.IsNullOrEmpty(User.Origin.LID) || string.IsNullOrEmpty(User.Origin.PWD))
+                        //    throw new FPException("请先补全注册信息");
                         foreach (var t in value.Params)
                             if (t.Value != null)
                                 User.Records[t.Key] = t.Value;
@@ -116,11 +121,17 @@ namespace FPServer.Controllers
                 {
                     using (ServiceInstance server = FrameCorex.RecoverService(value.Token, (c) => { Debug.WriteLine("Container Token not found Token: " + c); }))
                     {
-                        if (!FrameCorex.ServiceInstanceInfo(server).IsLogin)
+                        //if (!FrameCorex.ServiceInstanceInfo(server).IsLogin)
+                        //{
+                        //    server.UserLogin(value.LID, value.PWD);
+                        //    FrameCorex.ServiceInstanceInfo(server).DisposeInfo = false;
+                        //}
+                        if (server.Info.User == null) return new PostResponseModel()
                         {
-                            server.UserLogin(value.LID, value.PWD);
-                            FrameCorex.ServiceInstanceInfo(server).DisposeInfo = false;
-                        }
+                            Message = "登陆失败",
+                            Result = Enums.APIResult.Error,
+                            ExtResult = { }
+                        };
                         var user = FrameCorex.ServiceInstanceInfo(server).User;
                         var tarres = new PostResponseModel()
                         {
@@ -129,11 +140,18 @@ namespace FPServer.Controllers
                             UserLoginToken = FrameCorex.ServiceInstanceInfo(server).LoginHashToken,
                             ExtResult = { }
                         };
-                        if (value.Params != null)
+                        if (value.Params != null&&value.Params.Count!=0)
+                        {
                             foreach (var t in value.Params.Keys)
                             {
                                 tarres.ExtResult.Add(t, user.Records[t]);
                             }
+                        }
+                        else
+                        {
+                            foreach (var t in user.Records.GetAll())
+                                tarres.ExtResult.Add(t.Key, t.Value);
+                        }
                         return tarres;
 
                     }
@@ -215,21 +233,30 @@ namespace FPServer.Controllers
                 {
                     using (ServiceInstance server = FrameCorex.RecoverService(value.Token, (c) => { Debug.WriteLine("Container Token not found Token: " + c); }))
                     {
-                        if (!FrameCorex.ServiceInstanceInfo(server).IsLogin)
+                        if (server.Info.User==null) return new PostResponseModel()
                         {
-                            server.UserLogin(value.LID, value.PWD);
-                            FrameCorex.ServiceInstanceInfo(server).DisposeInfo = false;
-                        }
+                            Message = "登陆失败",
+                            Result = Enums.APIResult.Error,
+                            ExtResult = { }
+                        };
                         var user = FrameCorex.ServiceInstanceInfo(server).User;
                         #region name
                         if (value.Params.ContainsKey("name"))
                         {
+                            if(!string.IsNullOrEmpty(value.Params["name"]))
                             user.Infos.Name = value.Params["name"];
                         }
                         #endregion
 
+                        if (value.Params.ContainsKey("lid"))
+                        {
+                            if (!string.IsNullOrEmpty(value.Params["lid"]))
+
+                                user.Infos.Name = value.Params["lid"];
+                        }
+
                         #region pwd
-                        if (value.Params.ContainsKey("pwd"))
+                        if (value.Params.ContainsKey("pwd")&& !string.IsNullOrEmpty(value.Params["pwd"]))
                         {
                             string pwd = value.Params["pwd"];
                             if (!string.IsNullOrEmpty(pwd))
@@ -253,7 +280,7 @@ namespace FPServer.Controllers
                         {
                             Message = "成功",
                             Result = Enums.APIResult.Success,
-                            ExtResult = { { "Name", user.Infos.Name } },
+                            ExtResult = { { "Name", user.Infos.Name }, { "LID", user.Origin.LID }, { "UID", user.Origin.ID } },
                             UserLoginToken = FrameCorex.ServiceInstanceInfo(server).LoginHashToken
                         };
                     }
