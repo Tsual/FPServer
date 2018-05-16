@@ -35,17 +35,17 @@ namespace FPServer
                     log.AddConsole();
                 });
 
-            //res = res.UseUrls("http://localhost:" + FrameCorex.Config[Enums.AppConfigEnum.AppPort]);
+            res = res.UseUrls("http://0.0.0.0:" + FrameCorex.Config[Enums.AppConfigEnum.AppPort]);
 
 
-            try
-            {
-                res = res.UseUrls(FrameCorex.Config[Enums.AppConfigEnum.ExtAddres].Split('|').GenerateUrls());
-            }
-            catch (Exception)
-            {
-                res = res.UseUrls("http://localhost:" + FrameCorex.Config[Enums.AppConfigEnum.AppPort]);
-            }
+            //try
+            //{
+            //    res = res.UseUrls(FrameCorex.Config[Enums.AppConfigEnum.ExtAddres].Split('|').GenerateUrls());
+            //}
+            //catch (Exception)
+            //{
+            //    res = res.UseUrls("http://localhost:" + FrameCorex.Config[Enums.AppConfigEnum.AppPort]);
+            //}
 
             return res.Build();
         }

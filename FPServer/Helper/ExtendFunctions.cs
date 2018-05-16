@@ -81,7 +81,6 @@ namespace FPServer.Helper
             foreach(var t in SplitedStrings)
             {
                 sb.Append("http://" + t + ":" + FrameCorex.Config[AppConfigEnum.AppPort] + ";");
-
             }
             return sb.Append("http://localhost:" + FrameCorex.Config[AppConfigEnum.AppPort]).ToString();
         }

@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="FPServer.ModelInstance.Userx">
+    <Position X="5" Y="4.75" Width="3.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="FPServer.ModelInstance.Userx.Info">
+        <TypeIdentifier>
+          <NewMemberFileName>ModelInstance\Userx.Info.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>oAAAAAIAEEAgAgAAAAAAAAAKAAAAgAAAAAAIAggAAAA=</HashCode>
+      <FileName>ModelInstance\Userx.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_Records" />
+      <Field Name="_Origin" />
+      <Field Name="_Encryptor" />
+      <Property Name="Encryptor" />
+      <Property Name="Records" />
+      <Property Name="Origin" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="FPServer.Models.UserModel">
+    <Position X="10.25" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAgAAAAAAAAAAAAgAAAAAAAAAAAAAAAAg=</HashCode>
+      <FileName>Models\UserModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FPServer.ModelInstance.UserEncryptor">
+    <Position X="1.75" Y="6.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AQABAAAAAAAAAAAQAAAAAAAAAAAACAAAQAAAAAAAAAA=</HashCode>
+      <FileName>ModelInstance\UserEncryptor.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_AESobj" />
+      <Field Name="User" />
+      <Property Name="AESobj" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.233" />
+  </Class>
+  <Class Name="FPServer.Helper.AESProvider">
+    <Position X="1.75" Y="8.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Helper\AESProvider.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_aes" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="System.Security.Cryptography.Aes">
+    <Position X="1.75" Y="11" Width="2.25" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="System.Security.Cryptography.SymmetricAlgorithm">
+    <Position X="5" Y="11.25" Width="3.75" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Interface Name="FPServer.Interfaces.IUserRecordInstance">
+    <Position X="10.25" Y="5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAACAAAAAAAAAEAAAAAAgAAAAAAAAA=</HashCode>
+      <FileName>Interfaces\IUserRecordInstance.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="FPServer.Interfaces.IEncryptor">
+    <Position X="1.75" Y="4.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Interfaces\IEncryptor.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="System.Collections.IEnumerable">
+    <Position X="10.25" Y="7.25" Width="2.75" />
+    <TypeIdentifier />
+  </Interface>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>
